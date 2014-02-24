@@ -69,7 +69,10 @@ public class Exporter {
             File outputFile = new File(context.outputFile());
             File targetFolder = new File(outputFile.getParent());
             if (!targetFolder.exists()) {
-                throw new ExportException(context, "Target folder " + outputFile.getParent() + " does not exist");
+                if(context.forceOverride())
+                    targetFolder.mkdirs();
+                else
+                    throw new ExportException(context, "Target folder " + outputFile.getParent() + " does not exist");
             }
             if (!targetFolder.canWrite()) {
                 throw new ExportException(context, "Insufficient permissions to write into " + outputFile.getParent());
