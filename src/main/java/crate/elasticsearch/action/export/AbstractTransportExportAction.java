@@ -70,9 +70,11 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
         this.pageRecycler = pageRecycler;
         this.exportParser = exportParser;
         this.exporter = exporter;
-        File[] paths = nodeEnv.nodeDataLocations();
-        if (paths.length > 0) {
-            nodePath = paths[0].getAbsolutePath();
+        if(nodeEnv.hasNodeFile()){
+            File[] paths = nodeEnv.nodeDataLocations();
+            if (paths.length > 0) {
+                nodePath = paths[0].getAbsolutePath();
+            }
         }
     }
 

@@ -49,9 +49,11 @@ public abstract class AbstractTransportImportAction extends TransportNodesOperat
         this.scriptProvider = scriptProvider;
         this.importer = importer;
         this.scriptService=scriptService;
-        File[] paths = nodeEnv.nodeDataLocations();
-        if (paths.length > 0) {
-            nodePath = paths[0].getAbsolutePath();
+        if(nodeEnv.hasNodeFile()){
+            File[] paths = nodeEnv.nodeDataLocations();
+            if (paths.length > 0) {
+                nodePath = paths[0].getAbsolutePath();
+            }
         }
     }
 

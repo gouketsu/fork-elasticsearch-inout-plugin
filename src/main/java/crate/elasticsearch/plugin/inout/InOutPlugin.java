@@ -2,6 +2,7 @@ package crate.elasticsearch.plugin.inout;
 
 import java.util.Collection;
 
+import bist.elasticsearch.plugin.river.management.InOutRiverModule;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.common.settings.Settings;
@@ -20,6 +21,7 @@ import crate.elasticsearch.rest.action.admin.import_.RestImportAction;
 import crate.elasticsearch.rest.action.admin.reindex.RestReindexAction;
 import crate.elasticsearch.rest.action.admin.restore.RestRestoreAction;
 import crate.elasticsearch.rest.action.admin.searchinto.RestSearchIntoAction;
+import org.elasticsearch.river.RiversModule;
 
 public class InOutPlugin extends AbstractPlugin {
 
@@ -44,6 +46,11 @@ public class InOutPlugin extends AbstractPlugin {
         restModule.addRestAction(RestDumpAction.class);
         restModule.addRestAction(RestRestoreAction.class);
         restModule.addRestAction(RestReindexAction.class);
+    }
+
+    public void onModule(RiversModule module) {
+        module.registerRiver("housecleaning", InOutRiverModule.class);
+
     }
 
     @Override
