@@ -51,7 +51,7 @@ public class SearchIntoContext extends DefaultSearchContext implements IScriptCo
             CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler) {
         super(id, request, shardTarget, engineSearcher, indexService,
                 indexShard, scriptService,
-                cacheRecycler, pageRecycler);
+                cacheRecycler, pageRecycler, null);
         this.executionContext = new HashMap<String, Object>();
     }
 

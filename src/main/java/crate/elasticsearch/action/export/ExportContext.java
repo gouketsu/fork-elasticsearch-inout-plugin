@@ -43,7 +43,7 @@ public class ExportContext extends DefaultSearchContext {
                          CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                          String nodePath) {
         super(id, request, shardTarget, engineSearcher, indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler);
+                cacheRecycler, pageRecycler, null);
         this.nodePath = nodePath;
     }
 
