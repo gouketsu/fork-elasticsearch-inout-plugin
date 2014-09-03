@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>crate</groupId>
 	<artifactId>elasticsearch-inout-plugin</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.1</version>
     <packaging>jar</packaging>
     <description>An Elasticsearch plugin which provides the ability to export and import data by query on server side.</description>
     <scm>
@@ -14,8 +14,8 @@
         <url>https://github.com/crate/elasticsearch-inout-plugin</url>
     </scm>
 	<properties>
-		<elasticsearch.version>1.1.0</elasticsearch.version>
-        <lucene.version>4.7.0</lucene.version>
+		<elasticsearch.version>1.2.1</elasticsearch.version>
+        <lucene.version>4.8.1</lucene.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 	<build>

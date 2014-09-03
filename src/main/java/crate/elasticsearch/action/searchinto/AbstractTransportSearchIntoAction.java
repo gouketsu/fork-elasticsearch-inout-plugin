@@ -203,7 +203,7 @@ public abstract class AbstractTransportSearchIntoAction extends
             }
         } finally {
             // this will also release the index searcher
-            context.release();
+           
             SearchContext.removeCurrent();
         }
     }
