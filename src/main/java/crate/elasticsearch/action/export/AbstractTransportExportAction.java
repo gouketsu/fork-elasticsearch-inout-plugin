@@ -177,7 +177,6 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             }
         } finally {
             // this will also release the index searcher
-            context.release();
             SearchContext.removeCurrent();
         }
     }

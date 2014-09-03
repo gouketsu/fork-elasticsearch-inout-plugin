@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.elasticsearch.action.Action;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.action.support.broadcast.BroadcastOperationThreading;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
@@ -18,18 +17,17 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.BaseRestHandler;
+import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.XContentRestResponse;
-import org.elasticsearch.rest.XContentThrowableRestResponse;
 import org.elasticsearch.rest.action.support.RestActions;
-import org.elasticsearch.rest.action.support.RestXContentBuilder;
 
 import crate.elasticsearch.action.searchinto.SearchIntoAction;
 import crate.elasticsearch.action.searchinto.SearchIntoRequest;
 import crate.elasticsearch.action.searchinto.SearchIntoResponse;
 import crate.elasticsearch.client.action.searchinto.SearchIntoRequestBuilder;
+import crate.elasticsearch.rest.action.support.RestXContentBuilder;
 
 /**
  *
@@ -74,16 +72,6 @@ public class RestSearchIntoAction extends BaseRestHandler {
         }
         searchIntoRequest.listenerThreaded(false);
         try {
-            BroadcastOperationThreading operationThreading =
-                    BroadcastOperationThreading.fromString(
-                            request.param("operation_threading"),
-                            BroadcastOperationThreading.SINGLE_THREAD);
-            if (operationThreading == BroadcastOperationThreading.NO_THREADS) {
-                // since we don't spawn, don't allow no_threads,
-                // but change it to a single thread
-                operationThreading = BroadcastOperationThreading.SINGLE_THREAD;
-            }
-            searchIntoRequest.operationThreading(operationThreading);
             if (request.hasContent()) {
                 searchIntoRequest.source(request.content(),
                         request.contentUnsafe());
@@ -107,7 +95,7 @@ public class RestSearchIntoAction extends BaseRestHandler {
                 XContentBuilder builder = RestXContentBuilder
                         .restContentBuilder(
                                 request);
-                channel.sendResponse(new XContentRestResponse(request,
+                channel.sendResponse(new BytesRestResponse(
                         BAD_REQUEST, builder.startObject().field("error",
                         e.getMessage()).endObject()));
             } catch (IOException e1) {
@@ -125,22 +113,18 @@ public class RestSearchIntoAction extends BaseRestHandler {
                                     .restContentBuilder(
                                             request);
                             response.toXContent(builder, request);
-                            channel.sendResponse(new XContentRestResponse(
-                                    request, OK, builder));
+                            channel.sendResponse(new BytesRestResponse(
+                                    OK, builder));
                         } catch (Exception e) {
                             onFailure(e);
                         }
                     }
 
                     public void onFailure(Throwable e) {
-                        try {
+                
                             channel.sendResponse(
-                                    new XContentThrowableRestResponse(request,
-                                            e));
-                        } catch (IOException e1) {
-                            logger.error("Failed to send failure response",
-                                    e1);
-                        }
+                                    new BytesRestResponse(BAD_REQUEST));
+                      
                     }
                 });
 

@@ -3,6 +3,8 @@ package crate.elasticsearch.rest.action.admin.import_;
 import crate.elasticsearch.action.import_.ImportAction;
 import crate.elasticsearch.action.import_.ImportRequest;
 import crate.elasticsearch.action.import_.ImportResponse;
+import crate.elasticsearch.rest.action.support.RestXContentBuilder;
+
 import org.elasticsearch.action.Action;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.client.Client;
@@ -13,7 +15,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.*;
 import org.elasticsearch.rest.action.support.RestActions;
-import org.elasticsearch.rest.action.support.RestXContentBuilder;
 
 import java.io.IOException;
 
@@ -62,7 +63,7 @@ public class RestImportAction extends BaseRestHandler {
         } catch (Exception e) {
             try {
                 XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
-                channel.sendResponse(new XContentRestResponse(request, BAD_REQUEST, builder.startObject().field("error", e.getMessage()).endObject()));
+                channel.sendResponse(new BytesRestResponse(BAD_REQUEST, builder.startObject().field("error", e.getMessage()).endObject()));
             } catch (IOException e1) {
                 logger.error("Failed to send failure response", e1);
             }
@@ -76,18 +77,16 @@ public class RestImportAction extends BaseRestHandler {
                 try {
                     XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
                     response.toXContent(builder, request);
-                    channel.sendResponse(new XContentRestResponse(request, OK, builder));
+                    channel.sendResponse(new BytesRestResponse(OK, builder));
                 } catch (Exception e) {
                     onFailure(e);
                 }
             }
 
             public void onFailure(Throwable e) {
-                try {
-                    channel.sendResponse(new XContentThrowableRestResponse(request, e));
-                } catch (IOException e1) {
-                    logger.error("Failed to send failure response", e1);
-                }
+       
+                    channel.sendResponse(new BytesRestResponse(BAD_REQUEST));
+                
             }
         });
     }
