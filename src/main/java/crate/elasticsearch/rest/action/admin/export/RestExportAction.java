@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.elasticsearch.action.Action;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.action.support.broadcast.BroadcastOperationThreading;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
@@ -18,18 +17,17 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.BaseRestHandler;
+import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.XContentRestResponse;
-import org.elasticsearch.rest.XContentThrowableRestResponse;
 import org.elasticsearch.rest.action.support.RestActions;
-import org.elasticsearch.rest.action.support.RestXContentBuilder;
 
 import crate.elasticsearch.action.export.ExportAction;
 import crate.elasticsearch.action.export.ExportRequest;
 import crate.elasticsearch.action.export.ExportResponse;
 import crate.elasticsearch.client.action.export.ExportRequestBuilder;
+import crate.elasticsearch.rest.action.support.RestXContentBuilder;
 
 /**
  *
@@ -71,12 +69,6 @@ public class RestExportAction extends BaseRestHandler {
         }
         exportRequest.listenerThreaded(false);
         try {
-            BroadcastOperationThreading operationThreading = BroadcastOperationThreading.fromString(request.param("operation_threading"), BroadcastOperationThreading.SINGLE_THREAD);
-            if (operationThreading == BroadcastOperationThreading.NO_THREADS) {
-                // since we don't spawn, don't allow no_threads, but change it to a single thread
-                operationThreading = BroadcastOperationThreading.SINGLE_THREAD;
-            }
-            exportRequest.operationThreading(operationThreading);
             if (request.hasContent()) {
                 exportRequest.source(request.content(), request.contentUnsafe());
             } else {
@@ -96,7 +88,7 @@ public class RestExportAction extends BaseRestHandler {
         } catch (Exception e) {
             try {
                 XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
-                channel.sendResponse(new XContentRestResponse(request, BAD_REQUEST, builder.startObject().field("error", e.getMessage()).endObject()));
+                channel.sendResponse(new BytesRestResponse( BAD_REQUEST, builder.startObject().field("error", e.getMessage()).endObject()));
             } catch (IOException e1) {
                 logger.error("Failed to send failure response", e1);
             }
@@ -109,18 +101,16 @@ public class RestExportAction extends BaseRestHandler {
                 try {
                     XContentBuilder builder = RestXContentBuilder.restContentBuilder(request);
                     response.toXContent(builder, request);
-                    channel.sendResponse(new XContentRestResponse(request, OK, builder));
+                    channel.sendResponse(new BytesRestResponse(OK, builder));
                 } catch (Exception e) {
                     onFailure(e);
                 }
             }
 
             public void onFailure(Throwable e) {
-                try {
-                    channel.sendResponse(new XContentThrowableRestResponse(request, e));
-                } catch (IOException e1) {
-                    logger.error("Failed to send failure response", e1);
-                }
+         
+                    channel.sendResponse(new BytesRestResponse(BAD_REQUEST));
+               
             }
         });
 
