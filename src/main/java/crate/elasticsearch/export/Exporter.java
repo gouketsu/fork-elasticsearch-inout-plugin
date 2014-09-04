@@ -96,6 +96,7 @@ public class Exporter {
         } catch (IOException e) {
             throw new ExportException(context, "Failed to open output: ", e);
         }
+        
         ExportCollector collector = new ExportCollector(context, output.getOutputStream(), fetchSubPhases);
         try {
             context.searcher().search(query, collector);

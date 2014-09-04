@@ -36,7 +36,7 @@ public class RestReindexAction extends RestSearchIntoAction {
     }
 
     @Override
-    protected Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder> action() {
+    protected Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder, Client> action() {
         return ReindexAction.INSTANCE;
     }
 }

@@ -25,7 +25,7 @@ public class ExportParser implements IExportParser {
 
     private final ImmutableMap<String, SearchParseElement> elementParsers;
 
-    @Inject
+   @Inject
     public ExportParser(QueryPhase queryPhase, FetchPhase fetchPhase) {
         Map<String, SearchParseElement> elementParsers = new HashMap<String, SearchParseElement>();
         elementParsers.putAll(queryPhase.parseElements());

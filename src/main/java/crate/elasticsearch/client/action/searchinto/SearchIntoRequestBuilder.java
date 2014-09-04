@@ -6,14 +6,13 @@ import crate.elasticsearch.action.searchinto.SearchIntoResponse;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.internal.InternalClient;
 
 public class SearchIntoRequestBuilder extends
         ActionRequestBuilder<SearchIntoRequest, SearchIntoResponse,
-                SearchIntoRequestBuilder> {
+                SearchIntoRequestBuilder, Client> {
 
     public SearchIntoRequestBuilder(Client client) {
-        super((InternalClient) client, new SearchIntoRequest());
+        super(client, new SearchIntoRequest());
     }
 
     @Override

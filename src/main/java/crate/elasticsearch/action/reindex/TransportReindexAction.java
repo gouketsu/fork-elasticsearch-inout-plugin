@@ -21,14 +21,11 @@ public class TransportReindexAction extends AbstractTransportSearchIntoAction {
                                   CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                                   IndicesService indicesService, ScriptService scriptService,
                                   ScriptProvider scriptProvider, ReindexParser parser, Writer writer) {
-        super(settings, threadPool, clusterService, transportService,
+        super(settings, "el-crate-reindex", threadPool, clusterService, transportService,
                 cacheRecycler, pageRecycler,
                 indicesService, scriptService, scriptProvider, parser, writer);
     }
 
-    @Override
-    protected String transportAction() {
-        return ReindexAction.NAME;
-    }
+
 
 }
