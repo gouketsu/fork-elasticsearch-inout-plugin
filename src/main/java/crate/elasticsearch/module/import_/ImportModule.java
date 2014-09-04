@@ -13,16 +13,16 @@ public class ImportModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TransportImportAction.class).asEagerSingleton();
+      bind(TransportImportAction.class).asEagerSingleton();
 
-        bind(ImportParser.class).asEagerSingleton();
-        bind(Importer.class).asEagerSingleton();
+      bind(ImportParser.class).asEagerSingleton();
+      bind(Importer.class).asEagerSingleton();
 
-        MapBinder<GenericAction, TransportAction> transportActionsBinder = MapBinder.newMapBinder(binder(), GenericAction.class, TransportAction.class);
-        transportActionsBinder.addBinding(ImportAction.INSTANCE).to(TransportImportAction.class).asEagerSingleton();
+      MapBinder<GenericAction, TransportAction> transportActionsBinder = MapBinder.newMapBinder(binder(), GenericAction.class, TransportAction.class);
+      transportActionsBinder.addBinding(ImportAction.INSTANCE).to(TransportImportAction.class).asEagerSingleton();
 
-        MapBinder<String, GenericAction> actionsBinder = MapBinder.newMapBinder(binder(), String.class, GenericAction.class);
-        actionsBinder.addBinding(ImportAction.NAME).toInstance(ImportAction.INSTANCE);
+      MapBinder<String, GenericAction> actionsBinder = MapBinder.newMapBinder(binder(), String.class, GenericAction.class);
+      actionsBinder.addBinding(ImportAction.NAME).toInstance(ImportAction.INSTANCE);
 
     }
 

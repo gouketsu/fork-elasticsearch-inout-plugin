@@ -26,13 +26,9 @@ public class TransportDumpAction extends AbstractTransportExportAction {
                                ScriptService scriptService,
                                CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                                DumpParser dumpParser, Exporter exporter, NodeEnvironment nodeEnv) {
-        super(settings, threadPool, clusterService, transportService, indicesService, scriptService,
+        super(settings, "el-crate-dump", threadPool, clusterService, transportService, indicesService, scriptService,
                 cacheRecycler, pageRecycler,
                 dumpParser, exporter, nodeEnv);
     }
 
-    @Override
-    protected String transportAction() {
-        return DumpAction.NAME;
-    }
 }

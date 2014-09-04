@@ -23,11 +23,7 @@ public class TransportRestoreAction extends AbstractTransportImportAction {
     public TransportRestoreAction(Settings settings, ClusterName clusterName,
                                   ThreadPool threadPool, ClusterService clusterService,
                                   TransportService transportService, ScriptService scriptService, ScriptProvider scriptProvider, RestoreParser restoreParser, Importer importer, NodeEnvironment nodeEnv) {
-        super(settings, clusterName, threadPool, clusterService, transportService, scriptService, scriptProvider, restoreParser, importer, nodeEnv);
+        super(settings, "el-crate-restore", clusterName, threadPool, clusterService, transportService, scriptService, scriptProvider, restoreParser, importer, nodeEnv);
     }
 
-    @Override
-    protected String transportAction() {
-        return RestoreAction.NAME;
-    }
 }

@@ -13,21 +13,21 @@ public class ReindexModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TransportReindexAction.class).asEagerSingleton();
+    bind(TransportReindexAction.class).asEagerSingleton();
 
-        bind(ReindexParser.class).asEagerSingleton();
+    bind(ReindexParser.class).asEagerSingleton();
 
-        MapBinder<GenericAction, TransportAction> transportActionsBinder =
-                MapBinder.newMapBinder(
-                        binder(), GenericAction.class, TransportAction.class);
+    MapBinder<GenericAction, TransportAction> transportActionsBinder =
+          MapBinder.newMapBinder(
+                      binder(), GenericAction.class, TransportAction.class);
 
-        transportActionsBinder.addBinding(ReindexAction.INSTANCE).to(
-                TransportReindexAction.class).asEagerSingleton();
+    transportActionsBinder.addBinding(ReindexAction.INSTANCE).to(
+            TransportReindexAction.class).asEagerSingleton();
 
-        MapBinder<String, GenericAction> actionsBinder = MapBinder
-                .newMapBinder(binder(), String.class, GenericAction.class);
-        actionsBinder.addBinding(ReindexAction.NAME).toInstance(
-                ReindexAction.INSTANCE);
+    MapBinder<String, GenericAction> actionsBinder = MapBinder
+            .newMapBinder(binder(), String.class, GenericAction.class);
+    actionsBinder.addBinding(ReindexAction.NAME).toInstance(
+             ReindexAction.INSTANCE);
 
     }
 

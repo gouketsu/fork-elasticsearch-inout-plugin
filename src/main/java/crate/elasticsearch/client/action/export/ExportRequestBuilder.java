@@ -6,12 +6,12 @@ import crate.elasticsearch.action.export.ExportResponse;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.internal.InternalClient;
 
-public class ExportRequestBuilder extends ActionRequestBuilder<ExportRequest, ExportResponse, ExportRequestBuilder> {
+
+public class ExportRequestBuilder extends ActionRequestBuilder<ExportRequest, ExportResponse, ExportRequestBuilder, Client> {
 
     public ExportRequestBuilder(Client client) {
-        super((InternalClient) client, new ExportRequest());
+        super(client, new ExportRequest());
     }
 
     @Override

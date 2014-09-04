@@ -22,11 +22,8 @@ public class TransportImportAction extends AbstractTransportImportAction {
     public TransportImportAction(Settings settings, ClusterName clusterName,
                                          ThreadPool threadPool, ClusterService clusterService,
                                          TransportService transportService, ScriptService scriptService, ScriptProvider scriptProvider, ImportParser importParser, Importer importer, NodeEnvironment nodeEnv) {
-        super(settings, clusterName, threadPool, clusterService, transportService, scriptService, scriptProvider, importParser, importer, nodeEnv);
+        super(settings, "el-crate-import", clusterName, threadPool, clusterService, transportService, scriptService, scriptProvider, importParser, importer, nodeEnv);
     }
 
-    @Override
-    protected String transportAction() {
-        return ImportAction.NAME;
-    }
+    
 }

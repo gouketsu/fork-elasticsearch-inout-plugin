@@ -10,7 +10,7 @@ import org.elasticsearch.client.Client;
 /**
  *
  */
-public class DumpAction extends Action<ExportRequest, ExportResponse, ExportRequestBuilder> {
+public class DumpAction extends Action<ExportRequest, ExportResponse, ExportRequestBuilder, Client> {
 
     public static final DumpAction INSTANCE = new DumpAction();
     public static final String NAME = "el-crate-dump";

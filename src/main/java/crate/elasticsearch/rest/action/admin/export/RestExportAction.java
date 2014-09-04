@@ -46,11 +46,11 @@ public class RestExportAction extends BaseRestHandler {
         controller.registerHandler(POST, "/{index}/{type}/_export", this);
     }
 
-    protected Action<ExportRequest, ExportResponse, ExportRequestBuilder> action() {
+    protected Action<ExportRequest, ExportResponse, ExportRequestBuilder, Client> action() {
         return ExportAction.INSTANCE;
     }
 
-    public void handleRequest(final RestRequest request, final RestChannel channel) {
+    public void handleRequest(final RestRequest request, final RestChannel channel, Client client) {
         ExportRequest exportRequest = new ExportRequest(Strings.splitStringByCommaToArray(request.param("index")));
 
         if (request.hasParam("ignore_unavailable") ||

@@ -6,12 +6,11 @@ import crate.elasticsearch.action.import_.ImportResponse;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.internal.InternalClient;
 
-public class ImportRequestBuilder extends ActionRequestBuilder<ImportRequest, ImportResponse, ImportRequestBuilder> {
+public class ImportRequestBuilder extends ActionRequestBuilder<ImportRequest, ImportResponse, ImportRequestBuilder, Client> {
 
     public ImportRequestBuilder(Client client) {
-        super((InternalClient) client, new ImportRequest());
+        super(client, new ImportRequest());
     }
 
     @Override

@@ -10,7 +10,7 @@ import org.elasticsearch.client.Client;
 /**
  *
  */
-public class RestoreAction extends Action<ImportRequest, ImportResponse, ImportRequestBuilder> {
+public class RestoreAction extends Action<ImportRequest, ImportResponse, ImportRequestBuilder, Client> {
 
     public static final RestoreAction INSTANCE = new RestoreAction();
     public static final String NAME = "el-crate-restore";

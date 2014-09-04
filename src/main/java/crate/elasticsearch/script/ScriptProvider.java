@@ -12,7 +12,7 @@ public class ScriptProvider {
         String scriptLang = context.scriptLang();
         Map<String, Object> scriptParams = context.scriptParams();
         if (context.scriptString() != null) {
-            ExecutableScript executableScript = scriptService.executable(scriptLang, scriptString, scriptParams);
+            ExecutableScript executableScript = scriptService.executable(scriptLang, scriptString, org.elasticsearch.script.ScriptService.ScriptType.INLINE,  scriptParams);
             context.executableScript(executableScript);
         }
         return context;
