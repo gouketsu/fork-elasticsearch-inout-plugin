@@ -3,6 +3,7 @@ package crate.elasticsearch.action.searchinto.parser;
 import java.util.Map;
 
 import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.script.CompiledScript;
 import org.elasticsearch.script.SearchScript;
 import org.elasticsearch.search.SearchParseElement;
 import org.elasticsearch.search.fetch.script.ScriptFieldsContext;
@@ -87,8 +88,8 @@ public class FieldsParseElement implements SearchParseElement {
                             }
                         }
                         SearchScript searchScript = context.scriptService()
-                                .search(
-                                context.lookup(), scriptLang, script, params);
+                                .search( new CompiledScript(scriptLang, script),
+                                context.lookup(), params);
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(scriptName,
                                         searchScript, ignoreException));
@@ -108,7 +109,8 @@ public class FieldsParseElement implements SearchParseElement {
                         // script field to load from source
                         SearchScript searchScript = context.scriptService()
                                 .search(
-                                context.lookup(), "mvel", source, null);
+                                		new CompiledScript("mvel", source), 
+                                context.lookup(), null);
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(source,
                                         searchScript, true));
@@ -129,7 +131,8 @@ public class FieldsParseElement implements SearchParseElement {
             if (name.contains("_source.") || name.contains("doc[")) {
                 // script field to load from source
                 SearchScript searchScript = context.scriptService().search(
-                        context.lookup(), "mvel", name, null);
+                		new CompiledScript("mvel", name), 
+                        context.lookup(), null);
                 context.scriptFields().add(new ScriptFieldsContext.ScriptField(
                         name, searchScript, true));
             } else {

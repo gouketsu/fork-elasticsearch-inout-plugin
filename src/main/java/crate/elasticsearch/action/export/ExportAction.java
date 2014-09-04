@@ -1,14 +1,14 @@
 package crate.elasticsearch.action.export;
 
 import crate.elasticsearch.client.action.export.ExportRequestBuilder;
-import org.elasticsearch.action.Action;
+import org.elasticsearch.action.ClientAction;
 import org.elasticsearch.client.Client;
 
 
 /**
  *
  */
-public class ExportAction extends Action<ExportRequest, ExportResponse, ExportRequestBuilder> {
+public class ExportAction extends ClientAction<ExportRequest, ExportResponse, ExportRequestBuilder> {
 
     public static final ExportAction INSTANCE = new ExportAction();
     public static final String NAME = "el-crate-export";

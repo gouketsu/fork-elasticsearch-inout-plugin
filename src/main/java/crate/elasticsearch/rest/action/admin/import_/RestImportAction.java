@@ -41,7 +41,7 @@ public class RestImportAction extends BaseRestHandler {
         return ImportAction.INSTANCE;
     }
 
-    public void handleRequest(final RestRequest request, final RestChannel channel) {
+    public void handleRequest(final RestRequest request, final RestChannel channel, Client client) {
         ImportRequest importRequest = new ImportRequest();
         importRequest.listenerThreaded(false);
         try {

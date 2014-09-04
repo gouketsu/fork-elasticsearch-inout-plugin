@@ -47,12 +47,12 @@ public class RestSearchIntoAction extends BaseRestHandler {
         controller.registerHandler(POST, "/{index}/{type}/_search_into", this);
     }
 
-    protected Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder> action() {
+    protected Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder, Client> action() {
         return SearchIntoAction.INSTANCE;
     }
 
     public void handleRequest(final RestRequest request,
-            final RestChannel channel) {
+            final RestChannel channel, final Client client) {
         SearchIntoRequest searchIntoRequest = new SearchIntoRequest(
                 Strings.splitStringByCommaToArray(request.param("index")));
 

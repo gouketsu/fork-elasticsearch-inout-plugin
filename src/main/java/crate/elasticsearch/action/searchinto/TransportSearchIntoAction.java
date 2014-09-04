@@ -27,14 +27,9 @@ public class TransportSearchIntoAction extends AbstractTransportSearchIntoAction
                                      IndicesService indicesService, ScriptService scriptService,
                                      ScriptProvider scriptProvider,
                                      SearchIntoParser parser, Writer writer) {
-        super(settings, threadPool, clusterService, transportService,
+        super(settings, "el-crate-searchinto", threadPool, clusterService, transportService,
                 cacheRecycler, pageRecycler, indicesService,
                 scriptService, scriptProvider, parser, writer);
-    }
-
-    @Override
-    protected String transportAction() {
-        return SearchIntoAction.NAME;
     }
 
 }

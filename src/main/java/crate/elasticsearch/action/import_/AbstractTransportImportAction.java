@@ -37,14 +37,14 @@ public abstract class AbstractTransportImportAction extends TransportNodesOperat
     private final ScriptService scriptService;
 
     @Inject
-    public AbstractTransportImportAction(Settings settings, ClusterName clusterName,
+    public AbstractTransportImportAction(Settings settings, String name, ClusterName clusterName,
                                          ThreadPool threadPool, ClusterService clusterService,
                                          TransportService transportService, 
                                          ScriptService scriptService,
                                          ScriptProvider scriptProvider, 
                                          IImportParser importParser, 
                                          Importer importer, NodeEnvironment nodeEnv) {
-        super(settings, clusterName, threadPool, clusterService, transportService);
+        super(settings, name, clusterName, threadPool, clusterService, transportService);
         this.importParser = importParser;
         this.scriptProvider = scriptProvider;
         this.importer = importer;

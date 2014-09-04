@@ -25,7 +25,7 @@ public class RestDumpAction extends RestExportAction {
     }
 
     @Override
-    protected Action<ExportRequest, ExportResponse, ExportRequestBuilder> action() {
+    protected Action<ExportRequest, ExportResponse, ExportRequestBuilder, Client> action() {
         return DumpAction.INSTANCE;
     }
 

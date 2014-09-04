@@ -62,14 +62,14 @@ public abstract class AbstractTransportSearchIntoAction extends
     private final Writer writer;
 
     @Inject
-    public AbstractTransportSearchIntoAction(Settings settings,
+    public AbstractTransportSearchIntoAction(Settings settings, String name,
             ThreadPool threadPool, ClusterService clusterService,
             TransportService transportService,
             CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
             IndicesService indicesService, ScriptService scriptService,
             ScriptProvider scriptProvider,
             ISearchIntoParser parser, Writer writer) {
-        super(settings, threadPool, clusterService, transportService);
+        super(settings, name, threadPool, clusterService, transportService);
         this.indicesService = indicesService;
         this.cacheRecycler = cacheRecycler;
         this.pageRecycler = pageRecycler;
@@ -95,7 +95,7 @@ public abstract class AbstractTransportSearchIntoAction extends
     }
 
     @Override
-    protected ShardSearchIntoRequest newShardRequest(ShardRouting shard,
+    protected ShardSearchIntoRequest newShardRequest(int nbshards, ShardRouting shard,
             SearchIntoRequest request) {
         String[] filteringAliases = clusterService.state().metaData()
                 .filteringAliases(shard.index(), request.indices());

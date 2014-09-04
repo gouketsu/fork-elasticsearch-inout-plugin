@@ -2,6 +2,7 @@ package crate.elasticsearch.action.export;
 
 import crate.elasticsearch.action.export.parser.IExportParser;
 import crate.elasticsearch.export.Exporter;
+
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ShardOperationFailedException;
 import org.elasticsearch.action.support.DefaultShardOperationFailedException;
@@ -16,6 +17,7 @@ import org.elasticsearch.cluster.block.ClusterBlockLevel;
 import org.elasticsearch.cluster.routing.GroupShardsIterator;
 import org.elasticsearch.cluster.routing.ShardRouting;
 import org.elasticsearch.common.bytes.BytesReference;
+import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.index.service.IndexService;
@@ -57,13 +59,14 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
 
     private String nodePath;
 
-    public AbstractTransportExportAction(Settings settings, ThreadPool threadPool, ClusterService clusterService,
+    @Inject
+    public AbstractTransportExportAction(Settings settings, String name, ThreadPool threadPool, ClusterService clusterService,
                                          TransportService transportService, IndicesService indicesService,
                                          ScriptService scriptService,
                                          CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                                          IExportParser exportParser, Exporter exporter,
                                          NodeEnvironment nodeEnv) {
-        super(settings, threadPool, clusterService, transportService);
+        super(settings, name, threadPool, clusterService, transportService);
         this.indicesService = indicesService;
         this.scriptService = scriptService;
         this.cacheRecycler = cacheRecycler;
@@ -94,7 +97,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
     }
 
     @Override
-    protected ShardExportRequest newShardRequest(ShardRouting shard, ExportRequest request) {
+    protected ShardExportRequest newShardRequest(int nbshards, ShardRouting shard, ExportRequest request) {
         String[] filteringAliases = clusterService.state().metaData().filteringAliases(shard.index(), request.indices());
         return new ShardExportRequest(shard.index(), shard.id(), filteringAliases, request);
     }
@@ -177,6 +180,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             }
         } finally {
             // this will also release the index searcher
+        	context.close();
             SearchContext.removeCurrent();
         }
     }
