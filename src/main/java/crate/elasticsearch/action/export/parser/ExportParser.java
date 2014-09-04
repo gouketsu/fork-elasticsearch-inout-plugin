@@ -27,7 +27,6 @@ public class ExportParser implements IExportParser {
 
    @Inject
     public ExportParser(QueryPhase queryPhase, FetchPhase fetchPhase) {
-    	System.out.println("Export Parser");
         Map<String, SearchParseElement> elementParsers = new HashMap<String, SearchParseElement>();
         elementParsers.putAll(queryPhase.parseElements());
         elementParsers.put("fields", new FieldsParseElement());
@@ -39,7 +38,6 @@ public class ExportParser implements IExportParser {
         elementParsers.put("mappings", new ExportMappingsParseElement());
         elementParsers.put("settings", new ExportSettingsParseElement());
         this.elementParsers = ImmutableMap.copyOf(elementParsers);
-        System.out.println("Export parser exit");
     }
 
     /**

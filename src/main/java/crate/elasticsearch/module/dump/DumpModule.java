@@ -13,13 +13,13 @@ public class DumpModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TransportDumpAction.class).asEagerSingleton();
+        bind(TransportDumpAction.class);
 
-        bind(DumpParser.class).asEagerSingleton();
+        bind(DumpParser.class);
 
         MapBinder<GenericAction, TransportAction> transportActionsBinder = MapBinder.newMapBinder(binder(), GenericAction.class, TransportAction.class);
 
-        transportActionsBinder.addBinding(DumpAction.INSTANCE).to(TransportDumpAction.class).asEagerSingleton();
+        transportActionsBinder.addBinding(DumpAction.INSTANCE).to(TransportDumpAction.class);
 
         MapBinder<String, GenericAction> actionsBinder = MapBinder.newMapBinder(binder(), String.class, GenericAction.class);
         actionsBinder.addBinding(DumpAction.NAME).toInstance(DumpAction.INSTANCE);

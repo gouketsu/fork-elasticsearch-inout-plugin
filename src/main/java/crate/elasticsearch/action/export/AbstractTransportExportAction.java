@@ -50,7 +50,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
 
     private final ScriptService scriptService;
 
- //   private final IExportParser exportParser;
+    private final IExportParser exportParser;
 
     private final Exporter exporter;
 
@@ -71,7 +71,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
         this.scriptService = scriptService;
         this.cacheRecycler = cacheRecycler;
         this.pageRecycler = pageRecycler;
-  //      this.exportParser = exportParser;
+        this.exportParser = exportParser;
         this.exporter = exporter;
         if(nodeEnv.hasNodeFile()){
             File[] paths = nodeEnv.nodeDataLocations();
@@ -164,7 +164,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
 
         try {
             BytesReference source = request.source();
-    //        exportParser.parseSource(context, source);
+            exportParser.parseSource(context, source);
             context.preProcess();
             exporter.check(context);
             try {
@@ -180,6 +180,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             }
         } finally {
             // this will also release the index searcher
+        	context.close();
             SearchContext.removeCurrent();
         }
     }

@@ -1,15 +1,15 @@
 package crate.elasticsearch.action.reindex;
 
-import org.elasticsearch.action.Action;
+import org.elasticsearch.action.ClientAction;
 import org.elasticsearch.client.Client;
 
 import crate.elasticsearch.action.searchinto.SearchIntoRequest;
 import crate.elasticsearch.action.searchinto.SearchIntoResponse;
 import crate.elasticsearch.client.action.searchinto.SearchIntoRequestBuilder;
 
-public class ReindexAction extends Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder, Client>{
+public class ReindexAction extends ClientAction<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder>{
 
-    public static final Action<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder, Client> INSTANCE = new ReindexAction();
+    public static final ClientAction<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder> INSTANCE = new ReindexAction();
     public static final String NAME = "el-crate-reindex";
 
     protected ReindexAction() {

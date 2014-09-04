@@ -16,16 +16,16 @@ public class SearchIntoModule extends AbstractModule {
 
     @Override
     protected void configure() {
-      bind(TransportSearchIntoAction.class).asEagerSingleton();
+      bind(TransportSearchIntoAction.class);
 
-      bind(SearchIntoParser.class).asEagerSingleton();
+      bind(SearchIntoParser.class);
 
       MapBinder<GenericAction, TransportAction> transportActionsBinder =
               MapBinder.newMapBinder(
                       binder(), GenericAction.class, TransportAction.class);
 
       transportActionsBinder.addBinding(SearchIntoAction.INSTANCE).to(
-              TransportSearchIntoAction.class).asEagerSingleton();
+              TransportSearchIntoAction.class);
 
       MapBinder<String, GenericAction> actionsBinder = MapBinder
               .newMapBinder(binder(), String.class, GenericAction.class);
