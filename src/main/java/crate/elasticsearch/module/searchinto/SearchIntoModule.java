@@ -16,23 +16,7 @@ public class SearchIntoModule extends AbstractModule {
 
     @Override
     protected void configure() {
-      bind(TransportSearchIntoAction.class);
-
-      bind(SearchIntoParser.class);
-
-      MapBinder<GenericAction, TransportAction> transportActionsBinder =
-              MapBinder.newMapBinder(
-                      binder(), GenericAction.class, TransportAction.class);
-
-      transportActionsBinder.addBinding(SearchIntoAction.INSTANCE).to(
-              TransportSearchIntoAction.class);
-
-      MapBinder<String, GenericAction> actionsBinder = MapBinder
-              .newMapBinder(binder(), String.class, GenericAction.class);
-      actionsBinder.addBinding(SearchIntoAction.NAME).toInstance(
-              SearchIntoAction.INSTANCE);
-
-
+    
       MapBinder<String, WriterCollectorFactory> collectorBinder
              = MapBinder.newMapBinder(binder(),
              String.class, WriterCollectorFactory.class);
