@@ -12,20 +12,20 @@ import org.elasticsearch.common.inject.assistedinject.FactoryProvider;
 import org.elasticsearch.common.inject.multibindings.MapBinder;
 
 public class SearchIntoModule extends AbstractModule {
+	static boolean configured = false;
 
-
+	
     @Override
     protected void configure() {
     
-      MapBinder<String, WriterCollectorFactory> collectorBinder
-             = MapBinder.newMapBinder(binder(),
-             String.class, WriterCollectorFactory.class);
-
-      collectorBinder.addBinding(BulkWriterCollector.NAME).toProvider(
-             FactoryProvider
-                     .newFactory(WriterCollectorFactory.class,
-                             BulkWriterCollector.class));
-
-
+    	
+    	MapBinder<String, WriterCollectorFactory> collectorBinder
+    		= MapBinder.newMapBinder(binder(),
+    			String.class, WriterCollectorFactory.class);
+    	
+    	collectorBinder.addBinding(BulkWriterCollector.NAME).toProvider(
+    			FactoryProvider
+    			.newFactory(WriterCollectorFactory.class,
+    					BulkWriterCollector.class));
     }
 }

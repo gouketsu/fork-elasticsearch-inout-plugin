@@ -11,6 +11,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.plugins.PluginsService;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
+import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.*;
 import org.junit.Before;
 
 import java.io.*;
@@ -48,7 +49,8 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     }
 
     public void setupTestIndexLikeUsers(String indexName, int shards, boolean loadTestData) throws IOException {
-        prepareCreate(indexName).setSettings(settingsBuilder().put("index.number_of_shards", shards).put("index.number_of_replicas", 0))
+    	System.out.println("CreateIndex "+ indexName);
+    	assertAcked(prepareCreate(indexName).setSettings(settingsBuilder().put("index.number_of_shards", shards).put("index.number_of_replicas", 0))
                 .addMapping("d", jsonBuilder().startObject()
                         .startObject("d")
                         .startObject("properties")
@@ -58,8 +60,7 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
                         .field("store", "yes")
                         .endObject()
                         .endObject()
-                        .endObject())
-                .execute().actionGet();
+                        .endObject()));
         ensureGreen(indexName);
 
         if (loadTestData) {
@@ -89,6 +90,7 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     @Before
     @Override
     public void setUp() throws Exception {
+    	System.out.println("Call Setup");
         super.setUp();
         internalCluster().ensureAtLeastNumDataNodes(defaultNodeCount());
         internalCluster().ensureAtMostNumDataNodes(defaultNodeCount());

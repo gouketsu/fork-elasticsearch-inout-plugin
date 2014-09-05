@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
+/** 
  * Container class for inout specific informations.
  */
 public class SearchIntoContext extends DefaultSearchContext implements IScriptContext {

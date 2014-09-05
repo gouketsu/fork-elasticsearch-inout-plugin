@@ -26,11 +26,6 @@ import crate.elasticsearch.action.restore.RestoreAction;
 import crate.elasticsearch.action.restore.TransportRestoreAction;
 import crate.elasticsearch.action.searchinto.SearchIntoAction;
 import crate.elasticsearch.action.searchinto.TransportSearchIntoAction;
-import crate.elasticsearch.module.dump.DumpModule;
-import crate.elasticsearch.module.export.ExportModule;
-import crate.elasticsearch.module.import_.ImportModule;
-import crate.elasticsearch.module.reindex.ReindexModule;
-import crate.elasticsearch.module.restore.RestoreModule;
 import crate.elasticsearch.module.searchinto.SearchIntoModule;
 import crate.elasticsearch.rest.action.admin.dump.RestDumpAction;
 import crate.elasticsearch.rest.action.admin.export.RestExportAction;
@@ -81,15 +76,27 @@ public class InOutPlugin extends AbstractPlugin {
     		module.registerAction(RestoreAction.INSTANCE, TransportRestoreAction.class);
     		
     		module.registerAction(ReindexAction.INSTANCE, TransportReindexAction.class);
+    		
+    		
+    		
+    	//	final MapBinder<String, WriterCollectorFactory> collectorBinder
+    //		= MapBinder.newMapBinder(((AbstractModule) module).binder(),
+     //        String.class, WriterCollectorFactory.class);
+    	
+    //		collectorBinder.addBinding(BulkWriterCollector.NAME).toProvider(
+     //           FactoryProvider
+     //                   .newFactory(WriterCollectorFactory.class,
+      //                          BulkWriterCollector.class));
+
     	}
     }
 
     @Override
     public Collection<Class<? extends Module>> modules() {
-        Collection<Class<? extends Module>> modules = Lists.newArrayList();
-        if (!settings.getAsBoolean("node.client", false)) {
-            modules.add(SearchIntoModule.class);
-       }
-        return modules;
+    	Collection<Class<? extends Module>> modules = Lists.newArrayList();
+    	if (!settings.getAsBoolean("node.client", false)) {
+    		modules.add(SearchIntoModule.class);
+    	}
+    	return modules;
     }
 }

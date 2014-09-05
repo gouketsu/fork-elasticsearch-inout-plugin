@@ -576,7 +576,8 @@ public class RestExportActionTest extends AbstractRestActionTest {
 
     @Test
     public void testSettingsFileExists() throws IOException {
-        testSettings();
+    	System.out.println("Call testSettings()");
+    	testSettings();
         ExportResponse response = executeExportRequest("users",
                 "{\"output_file\": \"/tmp/${cluster}.${shard}.${index}.export\", \"fields\": [\"name\", \"_id\"], \"settings\": true}");
         List<Map<String, Object>> infos = getExports(response);
