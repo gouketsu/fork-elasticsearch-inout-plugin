@@ -305,7 +305,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         String source = "{\"output_cmd\": \"cat\", \"fields\": [\"name\"]}";
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source(source);
-        ExportResponse response = cluster().masterClient().execute(
+        ExportResponse response = internalCluster().masterClient().execute(
                 ExportAction.INSTANCE, exportRequest).actionGet();
 
         // The two shard results are from different nodes and have no failures
@@ -386,7 +386,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         prepareCreate("test").setSettings(ImmutableSettings.builder().put("index.number_of_shards", 3).build()).execute().actionGet();
         ensureGreen("test");
 
-        cluster().masterClient().prepareIndex("test", "type", "1").setSource("field1", "value1_1").setVersion(
+        internalCluster().masterClient().prepareIndex("test", "type", "1").setSource("field1", "value1_1").setVersion(
                 0).setVersionType(VersionType.EXTERNAL).execute().actionGet();
         refresh();
 
@@ -429,7 +429,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 .execute().actionGet();
         ensureGreen("tsstored");
 
-        cluster().masterClient().prepareIndex("tsstored", "d", "1").setSource(
+        internalCluster().masterClient().prepareIndex("tsstored", "d", "1").setSource(
                 "field1", "value1").setTimestamp("123").execute().actionGet();
         refresh();
 
@@ -496,7 +496,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
      */
     @Test
     public void testRouting() {
-        cluster().masterClient().prepareIndex("users", "d", "1").setSource("field1", "value1").setRouting("2").execute().actionGet();
+        internalCluster().masterClient().prepareIndex("users", "d", "1").setSource("field1", "value1").setRouting("2").execute().actionGet();
         refresh();
 
         ExportResponse response = executeExportRequest("users",
@@ -657,7 +657,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
     private ExportResponse executeExportRequest(String index, String source) {
         ExportRequest exportRequest = new ExportRequest(index);
         exportRequest.source(source);
-        return cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
+        return internalCluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
     }
 
     /**

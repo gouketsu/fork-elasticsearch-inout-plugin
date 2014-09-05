@@ -42,8 +42,9 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
         executeDumpRequest("");
 
         // delete all
-        wipeIndices("test");
-        waitForRelocation();
+        cluster().wipeIndices("test");
+     //   cluster().w
+         waitForRelocation();
 
         // run restore without pyload relative directory
         ImportResponse response = executeRestoreRequest("");
@@ -54,7 +55,7 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
         assertTrue(existsWithField("2", "name", "item2", "test", "d"));
 
         ClusterStateRequest clusterStateRequest = Requests.clusterStateRequest().metaData(true).indices("test");
-        IndexMetaData metaData = cluster().masterClient().admin().cluster().state(clusterStateRequest).actionGet().getState().metaData().index("test");
+        IndexMetaData metaData = internalCluster().masterClient().admin().cluster().state(clusterStateRequest).actionGet().getState().metaData().index("test");
         assertEquals("{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true,\"norms\":{\"enabled\":false},\"index_options\":\"docs\"}}}}",
                 metaData.mappings().get("d").source().toString());
         assertEquals(2, metaData.numberOfShards());
@@ -85,13 +86,13 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
     private ImportResponse executeRestoreRequest(String source) {
         ImportRequest request = new ImportRequest();
         request.source(source);
-        return cluster().masterClient().execute(RestoreAction.INSTANCE, request).actionGet();
+        return internalCluster().masterClient().execute(RestoreAction.INSTANCE, request).actionGet();
     }
 
     private ExportResponse executeDumpRequest(String source) {
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source(source);
-        return cluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
+        return internalCluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
     }
 
     /**
@@ -100,7 +101,7 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
     private void deleteDefaultDir() {
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source("{\"output_file\": \"dump\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true, \"explain\": true}");
-        ExportResponse explain = cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
+        ExportResponse explain = internalCluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
         try {
             Map<String, Object> res = toMap(explain);
