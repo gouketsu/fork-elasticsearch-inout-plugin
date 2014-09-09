@@ -40,7 +40,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
     public void testSearchIntoWithScriptElementModifyingField() {
         SearchIntoRequest request = new SearchIntoRequest("test");
         request.source("{\"fields\": [\"_id\", \"_source\", [\"_index\", \"'newindex'\"]]" + ", \"script\": \"ctx._source.name += ' scripted'\"}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertEquals(2, res.getSuccessfulShards());
         List<Map<String, Object>> writes = getWrites(res);
         assertEquals(2, writes.size());
@@ -52,7 +52,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
     public void testSearchIntoWithScriptElementAddingField() {
         SearchIntoRequest request = new SearchIntoRequest("test");
         request.source("{\"fields\": [\"_id\", \"_source\", [\"_index\", \"'newindex'\"]]" + ", \"script\": \"ctx._source.name1 =  ctx._source.name + ' scripted'\"}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertEquals(2, res.getSuccessfulShards());
         List<Map<String, Object>> writes = getWrites(res);
         assertEquals(2, writes.size());
@@ -71,7 +71,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
 
         SearchIntoRequest request = new SearchIntoRequest("test");
         request.source("{\"fields\": [\"_id\", \"_source\", [\"_index\", \"'newindex'\"]]" + ", \"script\": \"if (ctx._id == '1') ctx.op = 'delete'; \"}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertEquals(2, res.getSuccessfulShards());
         List<Map<String, Object>> writes = getWrites(res);
         assertEquals(2, writes.size());
@@ -92,7 +92,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
 
         SearchIntoRequest request = new SearchIntoRequest("testwithousource");
         request.source("{\"fields\": [\"_id\", \"_source\", [\"_index\", \"'newindex'\"]]}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertEquals(1, res.getFailedShards());
         assertTrue(res.getShardFailures()[0].reason().contains("Parse Failure [The _source field of index testwithousource and type a is not stored.]"));
     }
@@ -103,7 +103,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
         prepareNestedIndex();
         SearchIntoRequest request = new SearchIntoRequest("nested");
         request.source("{\"fields\": [\"_id\", [\"x.city\", \"_source.city\"], [\"x.surname\", \"_source.name.surname\"], [\"x.name\", \"_source.name.name\"], [\"_index\", \"'newindex'\"]]}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         GetResponse getRes = get("newindex", "a", "1");
         assertTrue(getRes.isExists());
         assertEquals("{\"x\":{\"name\":\"Doe\",\"surname\":\"John\",\"city\":\"Dornbirn\"}}", getRes.getSourceAsString());
@@ -114,7 +114,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
         prepareNestedIndex();
         SearchIntoRequest request = new SearchIntoRequest("nested");
         request.source("{\"fields\": [\"_id\", [\"x\", \"_source.city\"], [\"x.surname\", \"_source.name.surname\"], [\"x.name\", \"_source.name.name\"], [\"_index\", \"'newindex'\"]]}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertTrue(res.getShardFailures()[0].reason().contains("Error on rewriting objects: Mixed objects and values]"));
     }
 
@@ -123,7 +123,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
         prepareNestedIndex();
         SearchIntoRequest request = new SearchIntoRequest("nested");
         request.source("{\"fields\": [\"_id\", [\"x.surname.bad\", \"_source.city\"], [\"x.surname\", \"_source.name.surname\"], [\"x.name\", \"_source.name.name\"], [\"_index\", \"'newindex'\"]]}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertTrue(res.getShardFailures()[0].reason().contains("Error on rewriting objects: Mixed objects and values]"));
     }
 
@@ -132,7 +132,7 @@ public class RestSearchIntoActionTest extends AbstractRestActionTest {
         prepareNestedIndex();
         SearchIntoRequest request = new SearchIntoRequest("nested");
         request.source("{\"fields\": [\"_id\", [\"x.surname\", \"_source.city\"], [\"x.surname.bad\", \"_source.name.surname\"], [\"x.name\", \"_source.name.name\"], [\"_index\", \"'newindex'\"]]}");
-        SearchIntoResponse res = cluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(SearchIntoAction.INSTANCE, request).actionGet();
         assertTrue(res.getShardFailures()[0].reason().contains("Error on rewriting objects: Mixed objects and values]"));
     }
 

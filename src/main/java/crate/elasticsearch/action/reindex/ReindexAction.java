@@ -9,7 +9,7 @@ import crate.elasticsearch.client.action.searchinto.SearchIntoRequestBuilder;
 
 public class ReindexAction extends ClientAction<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder>{
 
-    public static final ClientAction<SearchIntoRequest, SearchIntoResponse, SearchIntoRequestBuilder> INSTANCE = new ReindexAction();
+    public static final ReindexAction INSTANCE = new ReindexAction();
     public static final String NAME = "el-crate-reindex";
 
     protected ReindexAction() {

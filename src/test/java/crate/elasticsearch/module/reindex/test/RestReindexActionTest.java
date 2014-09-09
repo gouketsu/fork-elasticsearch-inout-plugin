@@ -42,7 +42,7 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         refresh();
 
         SearchIntoRequest request = new SearchIntoRequest("nosource");
-        SearchIntoResponse res = cluster().masterClient().execute(ReindexAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(ReindexAction.INSTANCE, request).actionGet();
         assertEquals(1, res.getFailedShards());
         assertTrue("error message is wrong: " + res.getShardFailures()[0].reason(), res.getShardFailures()[0].reason().contains("Parse Failure [The _source field of index nosource and type a is not stored.]"));
 
@@ -62,34 +62,34 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         index("test", "a", "1", "name", "a nice guy man");
         refresh();
 
-        SearchResponse respFound = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
+        SearchResponse respFound = internalCluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
         assertEquals(1, respFound.getHits().getTotalHits());
 
-        SearchResponse respAbsent = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "guy")).execute().actionGet();
+        SearchResponse respAbsent = internalCluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "guy")).execute().actionGet();
         assertEquals(0, respAbsent.getHits().getTotalHits());
 
-        CountResponse respCountBefore = cluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+        CountResponse respCountBefore = internalCluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
         assertEquals(1, respCountBefore.getCount());
 
-        CloseIndexResponse respClose = cluster().masterClient().admin().indices().prepareClose("test").execute().actionGet();
+        CloseIndexResponse respClose = internalCluster().masterClient().admin().indices().prepareClose("test").execute().actionGet();
         assertTrue(respClose.isAcknowledged());
 
-        UpdateSettingsResponse respUpd = cluster().masterClient().admin().indices().prepareUpdateSettings("test")
+        UpdateSettingsResponse respUpd = internalCluster().masterClient().admin().indices().prepareUpdateSettings("test")
                 .setSettings("{\"analysis\": {\"analyzer\": {" +
                 "\"stopper\": {\"type\": \"stop\", \"stopwords\": [\"nice\"]}" +
                 "}}}").execute().actionGet();
         assertTrue(respUpd.isAcknowledged());
 
-        OpenIndexResponse respOpen = cluster().masterClient().admin().indices().prepareOpen("test").execute().actionGet();
+        OpenIndexResponse respOpen = internalCluster().masterClient().admin().indices().prepareOpen("test").execute().actionGet();
         assertTrue(respOpen.isAcknowledged());
 
         ensureGreen("test");
 
-        CountResponse respCountAfterOpen = cluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+        CountResponse respCountAfterOpen = internalCluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
         assertEquals(1, respCountAfterOpen.getCount());
 
         SearchIntoRequest request = new SearchIntoRequest("test");
-        SearchIntoResponse res = cluster().masterClient().execute(ReindexAction.INSTANCE, request).actionGet();
+        SearchIntoResponse res = internalCluster().masterClient().execute(ReindexAction.INSTANCE, request).actionGet();
         String errMsg = "FAILURE!";
         if (res.getFailedShards() > 0) {
             for (int i = 0; i < res.getShardFailures().length; i++) {
@@ -98,13 +98,13 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         }
         assertEquals(errMsg, 0, res.getFailedShards());
 
-        CountResponse respCountAfterReindex = cluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
+        CountResponse respCountAfterReindex = internalCluster().masterClient().prepareCount("test").setQuery(QueryBuilders.matchAllQuery()).execute().actionGet();
         assertEquals(1, respCountAfterReindex.getCount());
 
-        SearchResponse respNowAbsent = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
+        SearchResponse respNowAbsent = internalCluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
         assertEquals(0, respNowAbsent.getHits().getTotalHits());
 
-        SearchResponse respNowFound = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "guy")).execute().actionGet();
+        SearchResponse respNowFound = internalCluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "guy")).execute().actionGet();
         assertEquals(1, respNowFound.getHits().getTotalHits());
 
 
