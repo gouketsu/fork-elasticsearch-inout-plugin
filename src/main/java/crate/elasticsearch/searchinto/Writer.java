@@ -17,7 +17,7 @@ public class Writer {
 
     @Inject
     public Writer(Map<String, WriterCollectorFactory> collectors) {
-        this.collectors = collectors;
+    	this.collectors = collectors;
     }
 
 
@@ -27,6 +27,7 @@ public class Writer {
                 context.shardTarget().getShardId());
         Query query = context.query();
         context.version(true);
+        System.out.println(context.targetType());
         WriterCollector wc = collectors.get(context.targetType()).create(
                 context);
         wc.open();

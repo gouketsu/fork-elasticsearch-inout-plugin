@@ -66,7 +66,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
      */
     @Test
     public void testImportWithIndexAndType() {
-        ClusterStatsIndices cnt = cluster().masterClient().admin().cluster().prepareClusterStats().execute().actionGet().getIndicesStats();
+        ClusterStatsIndices cnt = internalCluster().masterClient().admin().cluster().prepareClusterStats().execute().actionGet().getIndicesStats();
         String path = getClass().getResource("/importdata/import_1").getPath();
         ImportResponse response = executeImportRequest("{\"directory\": \"" + path + "\"}");
         List<Map<String, Object>> imports = getImports(response);
@@ -269,9 +269,9 @@ public class RestImportActionTest extends AbstractRestActionTest {
      * files are imported twice.
      */
     @Test
-    public void testMultipleFilesAndMultipleNodes() {
-        cluster().ensureAtMostNumNodes(2);
-        cluster().ensureAtLeastNumNodes(2);
+    public void testMultipleFilesAndMultipleNodes() throws Exception{
+    	internalCluster().ensureAtMostNumDataNodes(2);
+    	internalCluster().ensureAtLeastNumDataNodes(2);
         String path = getClass().getResource("/importdata/import_5").getPath();
         ImportResponse response = executeImportRequest("{\"directory\": \"" + path + "\"}");
         List<Map<String, Object>> imports = getImports(response);
@@ -332,8 +332,8 @@ public class RestImportActionTest extends AbstractRestActionTest {
      */
     @Test
     public void testImportRelativeFilename() throws IOException {
-        cluster().ensureAtMostNumNodes(2);
-        cluster().ensureAtLeastNumNodes(2);
+    	internalCluster().ensureAtMostNumDataNodes(2);
+    	internalCluster().ensureAtLeastNumDataNodes(2);
 
         // create sample data
         setupTestIndexLikeUsers("other", true);
@@ -343,9 +343,9 @@ public class RestImportActionTest extends AbstractRestActionTest {
         // export data and recreate empty index
         ExportRequest exportRequest = new ExportRequest("other");
         exportRequest.source("{\"output_file\": \"myExport/export.${shard}.${index}.json\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true}");
-        cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
+        internalCluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
-        wipeIndices("other");
+        cluster().wipeIndices("other");
         setupTestIndexLikeUsers("other", false);
 
         // run import with relative directory
@@ -457,7 +457,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
     private void makeNodeDataLocationDirectories(String directory) {
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source("{\"output_file\": \"" + directory + "\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true, \"explain\": true}");
-        ExportResponse explain = cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
+        ExportResponse explain = internalCluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
         try {
             Map<String, Object> res = toMap(explain);
@@ -509,7 +509,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
     private ImportResponse executeImportRequest(String source) {
         ImportRequest request = new ImportRequest();
         request.source(source);
-        return cluster().masterClient().execute(ImportAction.INSTANCE, request).actionGet();
+        return internalCluster().masterClient().execute(ImportAction.INSTANCE, request).actionGet();
     }
 
     private ImportResponse executeImportRequest(String index, String type, String source) {
@@ -517,7 +517,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
         request.index(index);
         request.type(type);
         request.source(source);
-        return cluster().masterClient().execute(ImportAction.INSTANCE, request).actionGet();
+        return internalCluster().masterClient().execute(ImportAction.INSTANCE, request).actionGet();
     }
 
 

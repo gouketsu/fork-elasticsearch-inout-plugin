@@ -8,7 +8,10 @@ import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.plugins.PluginsService;
 import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
+import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.*;
 import org.junit.Before;
 
 import java.io.*;
@@ -24,13 +27,14 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Abstract base class for the plugin's rest action tests. Sets up the client
  * and delivers some base functionality needed for all tests.
  */
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numNodes = 2)
+@ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numDataNodes = 2)
 public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTest {
 
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
+                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
                 .put("plugin.types", InOutPlugin.class.getName())
                 .put("index.number_of_shards", defaultShardCount())
                 .put("index.number_of_replicas", 0)
@@ -45,7 +49,8 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     }
 
     public void setupTestIndexLikeUsers(String indexName, int shards, boolean loadTestData) throws IOException {
-        prepareCreate(indexName).setSettings(settingsBuilder().put("index.number_of_shards", shards).put("index.number_of_replicas", 0))
+    	System.out.println("CreateIndex "+ indexName);
+    	assertAcked(prepareCreate(indexName).setSettings(settingsBuilder().put("index.number_of_shards", shards).put("index.number_of_replicas", 0))
                 .addMapping("d", jsonBuilder().startObject()
                         .startObject("d")
                         .startObject("properties")
@@ -55,8 +60,7 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
                         .field("store", "yes")
                         .endObject()
                         .endObject()
-                        .endObject())
-                .execute().actionGet();
+                        .endObject()));
         ensureGreen(indexName);
 
         if (loadTestData) {
@@ -86,9 +90,10 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     @Before
     @Override
     public void setUp() throws Exception {
+    	System.out.println("Call Setup");
         super.setUp();
-        cluster().ensureAtLeastNumNodes(defaultNodeCount());
-        cluster().ensureAtMostNumNodes(defaultNodeCount());
+        internalCluster().ensureAtLeastNumDataNodes(defaultNodeCount());
+        internalCluster().ensureAtMostNumDataNodes(defaultNodeCount());
         setupTestIndexLikeUsers("users", defaultShardCount(), true);
     }
 

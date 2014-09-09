@@ -206,7 +206,7 @@ public class RestDumpActionTest extends AbstractRestActionTest {
         String source = "{\"force_overwrite\": true, \"directory\":\"/tmp/multipleNodes\"}";
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source(source);
-        ExportResponse response = cluster().masterClient().execute(
+        ExportResponse response = internalCluster().masterClient().execute(
                 DumpAction.INSTANCE, exportRequest).actionGet();
 
         // The two shard results are from different nodes and have no failures
@@ -255,7 +255,7 @@ public class RestDumpActionTest extends AbstractRestActionTest {
     private void deleteDefaultDir() {
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source("{\"output_file\": \"dump\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true, \"explain\": true}");
-        ExportResponse explain = cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
+        ExportResponse explain = internalCluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
         try {
             Map<String, Object> res = toMap(explain);
@@ -293,7 +293,7 @@ public class RestDumpActionTest extends AbstractRestActionTest {
     private ExportResponse executeDumpRequest(String source) {
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.source(source);
-        return cluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
+        return internalCluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
     }
 
     /**
@@ -302,6 +302,6 @@ public class RestDumpActionTest extends AbstractRestActionTest {
      */
     private ExportResponse executeDumpRequest() {
         ExportRequest exportRequest = new ExportRequest();
-        return cluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
+        return internalCluster().masterClient().execute(DumpAction.INSTANCE, exportRequest).actionGet();
     }
 }

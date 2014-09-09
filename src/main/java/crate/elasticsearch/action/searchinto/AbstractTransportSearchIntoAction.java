@@ -198,6 +198,7 @@ public abstract class AbstractTransportSearchIntoAction extends
                 }
 
             } catch (Exception e) {
+            	System.out.println(e);
                 throw new QueryPhaseExecutionException(context,
                         "failed to execute inout", e);
             }

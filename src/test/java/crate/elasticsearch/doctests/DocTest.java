@@ -1,11 +1,11 @@
 package crate.elasticsearch.doctests;
 
+
 import crate.elasticsearch.plugin.inout.InOutPlugin;
 import junit.framework.TestCase;
 
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.test.ElasticsearchIntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -23,8 +23,12 @@ import static org.elasticsearch.common.io.Streams.copyToBytesFromClasspath;
 import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import org.elasticsearch.plugins.PluginsService;
+import org.elasticsearch.test.ElasticsearchIntegrationTest;
+import org.elasticsearch.test.ElasticsearchIntegrationTest.ClusterScope;
 
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numNodes = 2)
+
+@ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numDataNodes = 2)
 public class DocTest extends ElasticsearchIntegrationTest {
 
     private static final String PY_TEST = "src/test/python/tests.py";
@@ -58,6 +62,7 @@ public class DocTest extends ElasticsearchIntegrationTest {
     protected Settings nodeSettings(int nodeOrdinal) {
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
+                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
                 .put("plugin.types", InOutPlugin.class.getName())
                 .put("index.number_of_shards", 1)
                 .put("index.number_of_replicas", 0)
@@ -77,8 +82,8 @@ public class DocTest extends ElasticsearchIntegrationTest {
             resetInterpreter();
         }
 
-        cluster().ensureAtLeastNumNodes(2);
-        cluster().ensureAtMostNumNodes(2);
+        internalCluster().ensureAtLeastNumDataNodes(2);
+        internalCluster().ensureAtMostNumDataNodes(2);
         prepareCreate("users", 1, settingsBuilder().put("index.number_of_shards", 2).put("index.number_of_replicas", 0))
                 .addMapping("d", jsonBuilder().startObject()
                         .startObject("d")
