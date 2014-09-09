@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class OutputCommand extends Output {
 
-    private static final int BUFFER_LEN = 8192;
+    private static final int BUFFER_LEN = Interger.MAX_VALUE;
 
     private final ProcessBuilder builder;
     private final boolean compression;
