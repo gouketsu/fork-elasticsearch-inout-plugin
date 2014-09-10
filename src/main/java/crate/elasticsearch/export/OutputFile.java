@@ -36,6 +36,7 @@ public class OutputFile extends Output {
     public void close() throws IOException {
         result = new Result();
         if (os != null) {
+
             os.close();
             result.exit = 0;
         } else {

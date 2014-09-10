@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.google.gson.*;
 
 /**
  * Internal export response of a shard export request executed directly against a specific shard.
@@ -152,6 +153,11 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         out.writeBoolean(dryRun);
     }
 
+    private static Object getObject(final String jsonString) {
+	Gson gson = new Gson();
+	return gson.fromJson(jsonString, Object.class);
+    }
+
     @Override
     public XContentBuilder toXContent(XContentBuilder builder, ToXContent.Params params) throws IOException {
         builder.startObject();
@@ -167,7 +173,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
             builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
             if (!dryRun()) {
                 builder.field("stderr", getStderr());
-                builder.field("stdout", getStdout());
+		builder.field("stdout", getObject(getStdout()));
                 builder.field("exitcode", getExitCode());
             }
         }
