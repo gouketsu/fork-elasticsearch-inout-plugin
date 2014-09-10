@@ -13,7 +13,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class OutputCommand extends Output {
 
-    private static final int BUFFER_LEN = Integer.MAX_VALUE;
+    private static final int BUFFER_LEN = OutputCommand.getMaxValue();
 
     private final ProcessBuilder builder;
     private final boolean compression;
@@ -21,6 +21,18 @@ public class OutputCommand extends Output {
     private Result result;
     private StreamConsumer outputConsumer, errorConsumer;
     private OutputStream os;
+
+    public static int getMaxValue() {
+	int max = Integer.MAX_VALUE;
+	long runtimeMemory = Runtime.getRuntime().freeMemory();
+	runtimeMemory = runtimeMemory * 90 / 100;
+
+	if (max > runtimeMemory) {
+		max = (int) runtimeMemory;
+	}
+
+	return max;
+    }
 
     /**
      * Initialize the process builder with a single command.
