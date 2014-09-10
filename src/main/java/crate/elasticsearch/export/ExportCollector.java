@@ -175,6 +175,7 @@ public class ExportCollector extends Collector {
         searchHit.shardTarget(context.shardTarget());
         exportFields.hit(searchHit);
         XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
+        builder.prettyPrint();
         exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
         builder.flush();
         out.write('\n');
