@@ -50,6 +50,7 @@ public class ExportCollector extends Collector {
     private AtomicReaderContext arc;
     private final FetchSubPhase[] fetchSubPhases;
 
+
     public ExportCollector(ExportContext context,
                            OutputStream os, FetchSubPhase[] fetchSubPhases) {
         this.out = os;
@@ -173,14 +174,23 @@ public class ExportCollector extends Collector {
         }
 
         searchHit.shardTarget(context.shardTarget());
-        exportFields.hit(searchHit);
-        XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
+	exportFields.hit(searchHit);
+	XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
 	builder.prettyPrint();
-        exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
-        builder.flush();
-        out.write('\n');
-        out.flush();
-        numExported++;
+	if (numExported > 0) {
+		out.write(',');
+		out.write('\n');
+	}
+	exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
+	builder.flush();
+	out.flush();
+	numExported++;
+    }
+    public void begin() throws IOException {
+	out.write('[');
+    }
+    public void terminate() throws IOException {
+	out.write(']');
     }
 
 }
