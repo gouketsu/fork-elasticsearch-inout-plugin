@@ -49,8 +49,6 @@ public class Exporter {
     private final SettingsFilter settingsFilter;
 
     private ClusterAdminClient client;
-    
-    private boolean pretty = false;
 
     @Inject
     public Exporter(VersionFetchSubPhase versionPhase, Injector injector,
