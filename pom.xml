@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>crate</groupId>
 	<artifactId>elasticsearch-inout-plugin</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
     <packaging>jar</packaging>
     <description>An Elasticsearch plugin which provides the ability to export and import data by query on server side.</description>
     <scm>
@@ -132,7 +132,12 @@
             <version>2.7-b1</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+	<dependency>
+		<groupId>com.google.code.gson</groupId>
+		<artifactId>gson</artifactId>
+		<version>2.3</version>
+	</dependency>
+	</dependencies>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
