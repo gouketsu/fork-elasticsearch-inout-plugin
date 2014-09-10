@@ -98,10 +98,13 @@ public class Exporter {
         }
         ExportCollector collector = new ExportCollector(context, output.getOutputStream(), fetchSubPhases);
         try {
+        	collector.begin();
             context.searcher().search(query, collector);
+            collector.terminate();
         } catch (IOException e) {
             throw new ExportException(context, "Failed to fetch docs", e);
         }
+        
         try {
             output.close();
         } catch (IOException e) {

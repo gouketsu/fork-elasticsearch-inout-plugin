@@ -49,6 +49,7 @@ public class ExportCollector extends Collector {
     private final OutputStream out;
     private AtomicReaderContext arc;
     private final FetchSubPhase[] fetchSubPhases;
+    
 
     public ExportCollector(ExportContext context,
                            OutputStream os, FetchSubPhase[] fetchSubPhases) {
@@ -141,7 +142,7 @@ public class ExportCollector extends Collector {
     public void collect(int doc) throws IOException {
         fieldsVisitor.reset();
         currentReader.document(doc, fieldsVisitor);
-
+        
         Map<String, SearchHitField> searchFields = null;
         if (fieldsVisitor.fields() != null) {
             searchFields = new HashMap<String, SearchHitField>(fieldsVisitor.fields().size());
@@ -176,11 +177,20 @@ public class ExportCollector extends Collector {
         exportFields.hit(searchHit);
         XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
         builder.prettyPrint();
+        if (numExported > 0) {
+        	out.write(',');
+        	out.write('\n');
+        } 
         exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
         builder.flush();
-        out.write('\n');
         out.flush();
         numExported++;
+    }
+    public void begin() throws IOException {
+    	out.write('[');
+    }
+    public void terminate() throws IOException {
+    	out.write(']');
     }
 
 }

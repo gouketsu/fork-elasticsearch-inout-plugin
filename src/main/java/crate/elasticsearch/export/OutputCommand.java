@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -84,8 +88,10 @@ public class OutputCommand extends Output {
      */
     public void close() throws IOException {
         if (process != null) {
+        	
             os.flush();
             os.close();
+            
             result = new Result();
             try {
                 result.exit = process.waitFor();
