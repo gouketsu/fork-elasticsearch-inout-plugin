@@ -27,6 +27,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     private boolean dryRun = false;
     private Text node;
     private long numExported;
+    private boolean compression;
 
     ShardExportResponse() {
     }
@@ -45,12 +46,13 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param exitCode    exit code of the executed command
      * @param numExported number of exported documents
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file, String stderr, String stdout, int exitCode, long numExported) {
+    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file, boolean compression, String stderr, String stdout, int exitCode, long numExported) {
         super(index, shardId);
         this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
         this.file = file;
+        this.compression = compression;
         this.stderr = stderr;
         this.stdout = stdout;
         this.exitCode = exitCode;
@@ -67,14 +69,19 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param cmdArray executed command array (might be null)
      * @param file     written file (might be null)
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file) {
-        super(index, shardId);
-        this.node = node;
+    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file, boolean compression) {
+    	super(index, shardId);
+    	
+    	this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
         this.file = file;
         this.dryRun = true;
+        this.compression = compression;
     }
+    
+    
+    
 
     public String getCmd() {
         return cmd;
@@ -112,6 +119,10 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     public Text getNode() {
         return node;
     }
+    
+    public boolean getCompression() {
+    	return compression;
+    }
 
     public static ShardExportResponse readNew(StreamInput in) throws IOException {
         ShardExportResponse response = new ShardExportResponse();
@@ -132,6 +143,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         numExported = in.readVLong();
         node = in.readOptionalText();
         dryRun = in.readBoolean();
+        compression = in.readBoolean();
     }
 
     @Override
@@ -151,6 +163,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         out.writeVLong(numExported);
         out.writeOptionalText(node);
         out.writeBoolean(dryRun);
+        out.writeBoolean(compression);
     }
 
     private static Object getObject(final String jsonString) {  
@@ -160,7 +173,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
 
     @Override
     public XContentBuilder toXContent(XContentBuilder builder, ToXContent.Params params) throws IOException {
-        builder.startObject();
+    	builder.startObject();
         builder.field("index", getIndex());
         builder.field("shard", getShardId());
         if (node != null) {
@@ -173,7 +186,11 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
             builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
             if (!dryRun()) {
                 builder.field("stderr", getStderr());
-                builder.field("stdout", getObject(getStdout()));
+                if (compression){
+                	builder.field("stdout", getStdout());
+                }else{
+                	builder.field("stdout", getObject(getStdout()));
+                }
                 builder.field("exitcode", getExitCode());
             }
         }

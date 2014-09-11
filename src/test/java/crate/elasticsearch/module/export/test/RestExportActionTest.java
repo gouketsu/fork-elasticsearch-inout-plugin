@@ -86,9 +86,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(0), "users", 0,
-                "{\"name\":\"car\"}\n{\"name\":\"train\"}\n", "", null);
+                "[{name=car}, {name=train}]", "", null);
         assertShardInfoCommand(infos.get(1), "users", 0,
-                "{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n", "", null);
+                "[{name=bike}, {name=bus}]", "", null);
     }
 
     /**
@@ -102,9 +102,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(0), "users", 0,
-                "{\"name\":\"car\"}\n{\"name\":\"train\"}\n", "", null);
+                "[{name=car}, {name=train}]", "", null);
         assertShardInfoCommand(infos.get(1), "users", 0,
-                "{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n", "", null);
+                "[{name=bike}, {name=bus}]", "", null);
     }
 
     /**
@@ -118,9 +118,10 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(0), "users", 0,
-                "{\"name\":\"car\"}\n{\"name\":\"train\"}\n", "", null);
+                "[{\n  \"name\" : \"car\"\n},\n{\n  \"name\" : \"train\"\n}]\n", "", null);
         assertShardInfoCommand(infos.get(1), "users", 0,
-                "{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n", "", null);
+                "[{\n  \"name\" : \"bike\"\n},\n{\n  \"name\" : \"bus\"\n}]\n", "", null);
+
     }
 
     /**
@@ -200,8 +201,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<String> lines_1 = readLinesFromGZIP(filename_1);
         assertEquals(2, lines_1.size());
         assertEquals("{\"name\":\"bike\",\"_id\":\"2\"}", lines_1.get(0));
-        assertEquals("{\"name\":\"bus\",\"_id\":\"4\"}", lines_1.get(1));
-    }
+        assertEquals("{\"name\":\"bus\",\"_id\":\"4\"}", lines_1.get(1));    }
 
     /**
      * Only one parameter of the two 'output_file' or 'output_cmd' can be used.
@@ -330,6 +330,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<String> lines_0 = readLines("/tmp/query-0.json");
         assertEquals(0, lines_0.size());
         List<String> lines_1 = readLines("/tmp/query-1.json");
+        
         assertEquals(1, lines_1.size());
         assertEquals("{\"name\":\"bus\"}", lines_1.get(0));
     }
@@ -373,7 +374,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(1), "users", 0,
-                "{\"_id\":\"4\",\"_version\":1,\"_source\":{\"name\":\"bus\"}}\n{\"_id\":\"2\",\"_version\":2,\"_source\":{\"name\":\"electric bike\"}}\n",
+                "[{_id=4, _version=1.0, _source={name=bus}}, {_id=2, _version=2.0, _source={name=electric bike}}]",
                 "", null);
 
     }
@@ -402,8 +403,8 @@ public class RestExportActionTest extends AbstractRestActionTest {
            }
         }
         assertEquals(
-                "{\"_id\":\"1\",\"_version\":0,\"_source\":{\"field1\":\"value1_1\"}}\n",
-                findStdOut);
+                "[][{_id=1, _version=0.0, _source={field1=value1_1}}][]",
+                findStdOut.toString());
     }
 
     /**
@@ -414,7 +415,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users",
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_timestamp\"]}");
         List<Map<String, Object>> infos = getExports(response);
-        assertEquals("{\"_id\":\"1\"}\n{\"_id\":\"3\"}\n", infos.get(0).get("stdout"));
+        assertEquals("[{_id=1}, {_id=3}]", infos.get(0).get("stdout").toString());
     }
 
     /**
@@ -437,7 +438,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_timestamp\"]}");
 
         List<Map<String, Object>> infos = getExports(response);
-        assertEquals("{\"_id\":\"1\",\"_timestamp\":123}\n", infos.get(1).get("stdout"));
+        assertEquals("[{_id=1, _timestamp=123.0}]", infos.get(1).get("stdout").toString());
     }
 
     /**
@@ -447,7 +448,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users",
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_ttl\"]}");
         List<Map<String, Object>> infos = getExports(response);
-        assertEquals("{\"_id\":\"1\"}\n{\"_id\":\"3\"}\n", infos.get(0).get("stdout"));
+        assertEquals("[{_id=1}, {_id=3}]", infos.get(0).get("stdout").toString());
     }
 
     /**
@@ -470,9 +471,13 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_ttl\"]}");
         List<Map<String, Object>> infos = getExports(response);
         String stdout = infos.get(1).get("stdout").toString();
-        assertTrue("failed: " + stdout, stdout.startsWith("{\"_id\":\"1\",\"_ttl\":"));
-        String lsplit  = stdout.substring(18);
-        long ttl = Long.valueOf(lsplit.substring(0, lsplit.length() - 2));
+        
+        assertTrue("failed: " + stdout, stdout.startsWith("[{_id=1, _ttl="));
+        String lsplit  = stdout.substring(14);
+        double first=Double.valueOf(lsplit.substring(0, lsplit.length() - 5));
+        String lsplit2 = lsplit.substring(lsplit.length() - 4);
+        long second = Long.valueOf(lsplit2.substring(0, lsplit2.length() - 2));
+        long ttl = (long)(first * (Math.pow(10, second)));
         long diff = ttl - now.getTime();
         assertTrue("failed: " + diff, diff < 86400000 && diff > 86390000);
     }
@@ -486,9 +491,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users",
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_type\", \"_index\"]}");
         List<Map<String, Object>> infos = getExports(response);
-        assertEquals("{\"_id\":\"2\",\"_type\":\"d\",\"_index\":\"users\"}\n" +
-                "{\"_id\":\"4\",\"_type\":\"d\",\"_index\":\"users\"}\n",
-                infos.get(1).get("stdout"));
+        assertEquals("[{_id=2, _type=d, _index=users}, " +
+                "{_id=4, _type=d, _index=users}]",
+                infos.get(1).get("stdout").toString());
     }
 
     /**
@@ -502,10 +507,10 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users",
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_source\", \"_routing\"]}");
         List<Map<String, Object>> infos = getExports(response);
-        assertEquals("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"}}\n" +
-                "{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"}}\n" +
-                "{\"_id\":\"1\",\"_source\":{\"field1\":\"value1\"},\"_routing\":\"2\"}\n",
-                infos.get(1).get("stdout"));
+        assertEquals("[{_id=2, _source={name=bike}}, " +
+                "{_id=4, _source={name=bus}}, " +
+                "{_id=1, _source={field1=value1}, _routing=2}]",
+                infos.get(1).get("stdout").toString());
     }
 
     /**
@@ -611,9 +616,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         String mappings_0 = new BufferedReader(new FileReader(new File(filename_0))).readLine();
-        assertEquals("{\"users\":{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true,\"norms\":{\"enabled\":false},\"index_options\":\"docs\"}}}}}", mappings_0);
+        assertEquals("{\"users\":{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true}}}}}", mappings_0);
         String mappings_1 = new BufferedReader(new FileReader(new File(filename_1))).readLine();
-        assertEquals("{\"users\":{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true,\"norms\":{\"enabled\":false},\"index_options\":\"docs\"}}}}}", mappings_1);
+        assertEquals("{\"users\":{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true}}}}}", mappings_1);
     }
 
     @Test
@@ -683,7 +688,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         assertEquals(index, map.get("index"));
         assertEquals(exitcode, map.get("exitcode"));
         assertEquals(stderr, map.get("stderr"));
-        assertEquals(stdout, map.get("stdout"));
+        assertEquals(stdout, map.get("stdout").toString());
         assertEquals(cmd, map.get("cmd"));
         assertTrue(map.containsKey("node_id"));
     }

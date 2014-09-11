@@ -31,7 +31,7 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     protected Settings nodeSettings(int nodeOrdinal) {
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
-                .put("plugin.types", InOutPlugin.class.getName())
+              //  .put("plugin.types", InOutPlugin.class.getName())
                 .put("index.number_of_shards", defaultShardCount())
                 .put("index.number_of_replicas", 0)
                 .put("http.enabled", false)
