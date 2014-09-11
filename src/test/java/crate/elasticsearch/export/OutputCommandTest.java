@@ -89,7 +89,7 @@ public class OutputCommandTest {
         assertEquals("", result.stdErr);
 
         // The first 8K of the standard out are captured
-        assertTrue(result.stdOut.endsWith("Line 999999\n"));
+        assertTrue(result.stdOut.endsWith("Line 922\n"));
     }
 
     /**
@@ -216,8 +216,8 @@ public class OutputCommandTest {
 
         // There is no error in the standard error log
         assertEquals("", result.stdErr);
-        
-        // All lines must be returned
-        assertTrue(result.stdOut.endsWith("Line 999999\n"));
+
+        // The first 8K of the standard out are captured
+        assertTrue(result.stdOut.endsWith("Line 922\n"));
     }
 }

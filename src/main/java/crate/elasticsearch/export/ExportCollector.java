@@ -176,31 +176,21 @@ public class ExportCollector extends Collector {
         searchHit.shardTarget(context.shardTarget());
         exportFields.hit(searchHit);
         XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
-        if (context.outputFile() == null) {
-        	builder.prettyPrint();
-            if (numExported > 0) {
-        	   out.write(',');
-        	   out.write('\n');
-            } 
-        }
+        builder.prettyPrint();
+        if (numExported > 0) {
+        	out.write(',');
+        	out.write('\n');
+        } 
         exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
         builder.flush();
-        if (context.outputFile() != null)
-        {
-        	out.write('\n');
-        }
         out.flush();
         numExported++;
     }
     public void begin() throws IOException {
-    	if (context.outputFile() == null) {
-    		out.write('[');
-    	}
+    	out.write('[');
     }
     public void terminate() throws IOException {
-    	if (context.outputFile() == null) {
-    		out.write(']');
-    	}
+    	out.write(']');
     }
 
 }
