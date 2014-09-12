@@ -18,6 +18,8 @@ import crate.elasticsearch.action.export.ExportAction;
 import crate.elasticsearch.action.export.ExportRequest;
 import crate.elasticsearch.action.export.ExportResponse;
 import crate.elasticsearch.module.AbstractRestActionTest;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class RestDumpActionTest extends AbstractRestActionTest {
 
@@ -42,12 +44,20 @@ public class RestDumpActionTest extends AbstractRestActionTest {
 
         List<String> lines_0 = readLinesFromGZIP(output_file_0);
         assertEquals(2, lines_0.size());
-        assertEquals("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_0.get(0));
-        assertEquals("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_0.get(1));
+        assertThat(lines_0.get(0),
+        		either(containsString("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+        assertThat(lines_0.get(1),
+        		either(containsString("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
         List<String> lines_1 = readLinesFromGZIP(output_file_1);
         assertEquals(2, lines_1.size());
-        assertEquals("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_1.get(0));
-        assertEquals("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_1.get(1));
+        assertThat(lines_1.get(0),
+        		either(containsString("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+        assertThat(lines_1.get(1),
+        		either(containsString("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
     }
 
 
@@ -128,13 +138,21 @@ public class RestDumpActionTest extends AbstractRestActionTest {
 
         List<String> lines_0 = readLinesFromGZIP(filename_0);
         assertEquals(2, lines_0.size());
-        assertEquals("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_0.get(0));
-        assertEquals("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_0.get(1));
-        List<String> lines_1 = readLinesFromGZIP(filename_1);
+        assertThat(lines_0.get(0),
+        		either(containsString("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+        assertThat(lines_0.get(1),
+        		either(containsString("{\"_id\":\"1\",\"_source\":{\"name\":\"car\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"3\",\"_source\":{\"name\":\"train\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+        List<String> lines_1 = readLinesFromGZIP(output_file_1);
         assertEquals(2, lines_1.size());
-        assertEquals("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_1.get(0));
-        assertEquals("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}", lines_1.get(1));
-
+        assertThat(lines_1.get(0),
+        		either(containsString("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+        assertThat(lines_1.get(1),
+        		either(containsString("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")).or(
+        				containsString("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"},\"_version\":1,\"_index\":\"users\",\"_type\":\"d\"}")));
+  
         assertTrue(new File(filename_0 + ".settings").exists());
         assertTrue(new File(filename_0 + ".mapping").exists());
         assertTrue(new File(filename_1 + ".settings").exists());
