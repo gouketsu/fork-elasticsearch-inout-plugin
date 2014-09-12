@@ -88,12 +88,14 @@ public class FieldsParseElement implements SearchParseElement {
                             }
                         }
                         SearchScript searchScript = context.scriptService()
-                                .search( new CompiledScript(scriptLang, script),
+                                .search( context.scriptService().compile(scriptLang, script),
                                 context.lookup(), params);
+                        
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(scriptName,
                                         searchScript, ignoreException));
                     } else {
+                    	
                         source = parser.text();
                         sourceValue = getLiteral(source);
                     }
@@ -102,6 +104,7 @@ public class FieldsParseElement implements SearchParseElement {
                 } else {
                     source = target = parser.text();
                 }
+              
                 if (!source.startsWith(
                         SCRIPT_FIELD_PREFIX) && sourceValue == null) {
                     if (source.contains("_source.") || source.contains(
@@ -109,8 +112,9 @@ public class FieldsParseElement implements SearchParseElement {
                         // script field to load from source
                         SearchScript searchScript = context.scriptService()
                                 .search(
-                                		new CompiledScript("mvel", source), 
+                                		context.scriptService().compile("mvel", source), 
                                 context.lookup(), null);
+                        
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(source,
                                         searchScript, true));
@@ -131,7 +135,7 @@ public class FieldsParseElement implements SearchParseElement {
             if (name.contains("_source.") || name.contains("doc[")) {
                 // script field to load from source
                 SearchScript searchScript = context.scriptService().search(
-                		new CompiledScript("mvel", name), 
+                		context.scriptService().compile("mvel", name), 
                         context.lookup(), null);
                 context.scriptFields().add(new ScriptFieldsContext.ScriptField(
                         name, searchScript, true));

@@ -62,7 +62,6 @@ public class DocTest extends ElasticsearchIntegrationTest {
     protected Settings nodeSettings(int nodeOrdinal) {
         Settings settings = ImmutableSettings.settingsBuilder()
                 .put(super.nodeSettings(nodeOrdinal))
-                .put("plugins." + PluginsService.LOAD_PLUGIN_FROM_CLASSPATH, true)
                 .put("plugin.types", InOutPlugin.class.getName())
                 .put("index.number_of_shards", 1)
                 .put("index.number_of_replicas", 0)

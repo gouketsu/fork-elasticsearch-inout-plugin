@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class RestRestoreActionTest extends AbstractRestActionTest {
 
@@ -43,8 +45,8 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
 
         // delete all
         cluster().wipeIndices("test");
-     //   cluster().w
-         waitForRelocation();
+        refresh();
+        waitForRelocation();
 
         // run restore without pyload relative directory
         ImportResponse response = executeRestoreRequest("");
@@ -56,8 +58,10 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
 
         ClusterStateRequest clusterStateRequest = Requests.clusterStateRequest().metaData(true).indices("test");
         IndexMetaData metaData = internalCluster().masterClient().admin().cluster().state(clusterStateRequest).actionGet().getState().metaData().index("test");
-        assertEquals("{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true,\"norms\":{\"enabled\":false},\"index_options\":\"docs\"}}}}",
-                metaData.mappings().get("d").source().toString());
+      
+        
+        assertThat(metaData.mappings().get("d").source().toString(),
+			containsString("\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true}}"));
         assertEquals(2, metaData.numberOfShards());
         assertEquals(0, metaData.numberOfReplicas());
     }
