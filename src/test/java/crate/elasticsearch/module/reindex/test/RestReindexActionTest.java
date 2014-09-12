@@ -40,7 +40,7 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         ensureGreen("nosource");
         index("nosource", "a", "1", "name", "John");
         refresh();
-
+     
         SearchIntoRequest request = new SearchIntoRequest("nosource");
         SearchIntoResponse res = cluster().masterClient().execute(ReindexAction.INSTANCE, request).actionGet();
         assertEquals(1, res.getFailedShards());
@@ -61,6 +61,8 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         ensureGreen("test");
         index("test", "a", "1", "name", "a nice guy man");
         refresh();
+ 
+
 
         SearchResponse respFound = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
         assertEquals(1, respFound.getHits().getTotalHits());
