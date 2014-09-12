@@ -24,7 +24,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Abstract base class for the plugin's rest action tests. Sets up the client
  * and delivers some base functionality needed for all tests.
  */
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numNodes = 2)
+@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numDataNodes = 2)
 public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTest {
 
     @Override
@@ -87,9 +87,11 @@ public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTes
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        cluster().ensureAtLeastNumNodes(defaultNodeCount());
-        cluster().ensureAtMostNumNodes(defaultNodeCount());
+        cluster().ensureAtLeastNumDataNodes(defaultNodeCount());
+        cluster().ensureAtMostNumDataNodes(defaultNodeCount());
         setupTestIndexLikeUsers("users", defaultShardCount(), true);
+        refresh();
+        waitForRelocation();
     }
 
     protected final GetResponse get(String index, String type, String id, String... fields) {

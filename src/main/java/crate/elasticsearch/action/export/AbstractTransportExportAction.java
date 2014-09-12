@@ -166,10 +166,10 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             exporter.check(context);
             try {
                 if (context.explain()) {
-                    return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputFile());
+		    return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputFile(), context.compression());
                 } else {
                     Exporter.Result res = exporter.execute(context);
-                    return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputFile(), res.outputResult.stdErr, res.outputResult.stdOut, res.outputResult.exit, res.numExported);
+		    return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputFile(), context.compression(), res.outputResult.stdErr, res.outputResult.stdOut, res.outputResult.exit, res.numExported);
                 }
 
             } catch (Exception e) {
@@ -177,6 +177,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             }
         } finally {
             // this will also release the index searcher
+        	context.close();
             SearchContext.removeCurrent();
         }
     }

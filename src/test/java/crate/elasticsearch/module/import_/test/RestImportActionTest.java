@@ -1,6 +1,7 @@
 package crate.elasticsearch.module.import_.test;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,8 @@ import crate.elasticsearch.action.import_.ImportResponse;
 import crate.elasticsearch.module.AbstractRestActionTest;
 
 import static org.elasticsearch.common.io.Streams.copyToStringFromClasspath;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class RestImportActionTest extends AbstractRestActionTest {
 
@@ -142,7 +145,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
     public void setUp() throws Exception {
         super.setUp();
         prepareCreate("test")
-                .setSettings(ImmutableSettings.builder().put("index.number_of_shards", 1).build())
+                .setSettings(ImmutableSettings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0).build())
                 .addMapping("d",  "{\"d\": {\"_timestamp\": {\"enabled\": true, \"store\": \"yes\"}}}")
                 .execute().actionGet();
         this.ensureGreen("test");
@@ -270,8 +273,8 @@ public class RestImportActionTest extends AbstractRestActionTest {
      */
     @Test
     public void testMultipleFilesAndMultipleNodes() {
-        cluster().ensureAtMostNumNodes(2);
-        cluster().ensureAtLeastNumNodes(2);
+    	cluster().ensureAtMostNumDataNodes(2);
+    	cluster().ensureAtLeastNumDataNodes(2);
         String path = getClass().getResource("/importdata/import_5").getPath();
         ImportResponse response = executeImportRequest("{\"directory\": \"" + path + "\"}");
         List<Map<String, Object>> imports = getImports(response);
@@ -332,8 +335,8 @@ public class RestImportActionTest extends AbstractRestActionTest {
      */
     @Test
     public void testImportRelativeFilename() throws IOException {
-        cluster().ensureAtMostNumNodes(2);
-        cluster().ensureAtLeastNumNodes(2);
+    	cluster().ensureAtMostNumDataNodes(2);
+    	cluster().ensureAtLeastNumDataNodes(2);
 
         // create sample data
         setupTestIndexLikeUsers("other", true);
@@ -345,7 +348,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
         exportRequest.source("{\"output_file\": \"myExport/export.${shard}.${index}.json\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true}");
         cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
-        wipeIndices("other");
+        cluster().wipeIndices("other");
         setupTestIndexLikeUsers("other", false);
 
         // run import with relative directory
@@ -434,9 +437,9 @@ public class RestImportActionTest extends AbstractRestActionTest {
         ClusterStateRequest clusterStateRequest = Requests.clusterStateRequest().metaData(true).indices("index1");
         ImmutableOpenMap<String, MappingMetaData> mappings =
             admin().cluster().state(clusterStateRequest).actionGet().getState().metaData().index("index1").getMappings();
-        assertEquals("{\"1\":{\"_timestamp\":{\"enabled\":true,\"store\":true},\"_ttl\":{\"enabled\":true,\"default\":86400000},\"properties\":{\"name\":{\"type\":\"string\",\"store\":true}}}}",
-                mappings.get("1").source().toString());
-    }
+        assertThat(mappings.get("1").source().toString(), containsString(
+        		"\"_timestamp\":{\"enabled\":true,\"store\":true},\"_ttl\":{\"enabled\":true,\"default\":86400000},\"properties\":{\"name\":{\"type\":\"string\",\"store\":true}}"));
+        }
 
     @Test
     public void testMappingNotFound() {

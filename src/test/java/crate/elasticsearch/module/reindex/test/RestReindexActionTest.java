@@ -62,6 +62,8 @@ public class RestReindexActionTest extends AbstractRestActionTest {
         index("test", "a", "1", "name", "a nice guy man");
         refresh();
 
+
+
         SearchResponse respFound = cluster().masterClient().prepareSearch("test").setQuery(QueryBuilders.matchQuery("name", "nice")).execute().actionGet();
         assertEquals(1, respFound.getHits().getTotalHits());
 
