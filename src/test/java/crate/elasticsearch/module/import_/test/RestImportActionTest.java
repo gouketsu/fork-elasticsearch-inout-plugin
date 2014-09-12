@@ -142,7 +142,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
     public void setUp() throws Exception {
         super.setUp();
         prepareCreate("test")
-                .setSettings(ImmutableSettings.builder().put("index.number_of_shards", 1).build())
+                .setSettings(ImmutableSettings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0).build())
                 .addMapping("d",  "{\"d\": {\"_timestamp\": {\"enabled\": true, \"store\": \"yes\"}}}")
                 .execute().actionGet();
         this.ensureGreen("test");
@@ -345,7 +345,7 @@ public class RestImportActionTest extends AbstractRestActionTest {
         exportRequest.source("{\"output_file\": \"myExport/export.${shard}.${index}.json\", \"fields\": [\"_source\", \"_id\", \"_index\", \"_type\"], \"force_overwrite\": true}");
         cluster().masterClient().execute(ExportAction.INSTANCE, exportRequest).actionGet();
 
-        wipeIndices("other");
+        cluster().wipeIndices("other");
         setupTestIndexLikeUsers("other", false);
 
         // run import with relative directory

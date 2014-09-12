@@ -36,7 +36,9 @@ public abstract class AbstractSearchIntoParser  implements ISearchIntoParser {
 		
         XContentParser parser = null;
         try {
-            if (source != null) {
+	    if (source != null && source.length() > 0) {
+
+		//System.out.println(source.toString());
                 parser = XContentFactory.xContent(source).createParser(source);
                 XContentParser.Token token;
                 while ((token = parser.nextToken()) != XContentParser.Token

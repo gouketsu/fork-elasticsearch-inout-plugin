@@ -42,7 +42,7 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
         executeDumpRequest("");
 
         // delete all
-        wipeIndices("test");
+        cluster().wipeIndices("test");
         waitForRelocation();
 
         // run restore without pyload relative directory
@@ -55,7 +55,7 @@ public class RestRestoreActionTest extends AbstractRestActionTest {
 
         ClusterStateRequest clusterStateRequest = Requests.clusterStateRequest().metaData(true).indices("test");
         IndexMetaData metaData = cluster().masterClient().admin().cluster().state(clusterStateRequest).actionGet().getState().metaData().index("test");
-        assertEquals("{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true,\"norms\":{\"enabled\":false},\"index_options\":\"docs\"}}}}",
+	assertEquals("{\"d\":{\"properties\":{\"name\":{\"type\":\"string\",\"index\":\"not_analyzed\",\"store\":true}}}}",
                 metaData.mappings().get("d").source().toString());
         assertEquals(2, metaData.numberOfShards());
         assertEquals(0, metaData.numberOfReplicas());
