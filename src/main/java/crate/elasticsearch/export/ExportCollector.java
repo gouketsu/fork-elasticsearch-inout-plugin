@@ -173,24 +173,34 @@ public class ExportCollector extends Collector {
             }
         }
 
-        searchHit.shardTarget(context.shardTarget());
+	searchHit.shardTarget(context.shardTarget());
 	exportFields.hit(searchHit);
 	XContentBuilder builder = new XContentBuilder(XContentFactory.xContent(XContentType.JSON), out);
-	builder.prettyPrint();
-	if (numExported > 0) {
-		out.write(',');
-		out.write('\n');
+	if (context.outputFile() == null) {
+		builder.prettyPrint();
+	    if (numExported > 0) {
+		   out.write(',');
+		   out.write('\n');
+	    }
 	}
 	exportFields.toXContent(builder, ToXContent.EMPTY_PARAMS);
 	builder.flush();
+	if (context.outputFile() != null)
+	{
+		out.write('\n');
+	}
 	out.flush();
 	numExported++;
     }
     public void begin() throws IOException {
-	out.write('[');
+	if (context.outputFile() == null) {
+		out.write('[');
+	}
     }
     public void terminate() throws IOException {
-	out.write(']');
+	if (context.outputFile() == null) {
+		out.write(']');
+	}
     }
 
 }

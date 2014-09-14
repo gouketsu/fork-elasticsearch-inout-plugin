@@ -8,6 +8,7 @@ import org.elasticsearch.common.xcontent.XContentHelper;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.search.SearchParseElement;
 import org.elasticsearch.search.SearchParseException;
+
 import crate.elasticsearch.action.searchinto.SearchIntoContext;
 import crate.elasticsearch.script.ScriptParseElement;
 import crate.elasticsearch.script.ScriptParser;
@@ -36,7 +37,9 @@ public abstract class AbstractSearchIntoParser  implements ISearchIntoParser {
 		
         XContentParser parser = null;
         try {
-            if (source != null) {
+        	if (source != null && source.length() > 0) {
+
+		
                 parser = XContentFactory.xContent(source).createParser(source);
                 XContentParser.Token token;
                 while ((token = parser.nextToken()) != XContentParser.Token
@@ -51,9 +54,9 @@ public abstract class AbstractSearchIntoParser  implements ISearchIntoParser {
                         	if(scriptElement==null){
                                    throw new SearchParseException(context, "No parser for element [" + fieldName + "]");
                         	} else {
-                        		scriptElement.parse(parser, context);
+                          		scriptElement.parse(parser, context);
                         	}
-                        } else {
+                        } else {	
                             element.parse(parser, context);
                         }
                     } else if (token == null) {
@@ -65,7 +68,7 @@ public abstract class AbstractSearchIntoParser  implements ISearchIntoParser {
         } catch (Exception e) {
             String sSource = "_na_";
             try {
-                sSource = XContentHelper.convertToJson(source, false);
+                 sSource = XContentHelper.convertToJson(source, false);
             } catch (Throwable e1) {
                 // ignore
             }
