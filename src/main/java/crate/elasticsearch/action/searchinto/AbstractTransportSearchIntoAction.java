@@ -198,13 +198,12 @@ public abstract class AbstractTransportSearchIntoAction extends
                 }
 
             } catch (Exception e) {
-            	System.out.println(e);
                 throw new QueryPhaseExecutionException(context,
                         "failed to execute inout", e);
             }
         } finally {
             // this will also release the index searcher
-           
+            context.close();
             SearchContext.removeCurrent();
         }
     }
