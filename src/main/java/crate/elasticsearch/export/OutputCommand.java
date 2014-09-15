@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class OutputCommand extends Output {
 
-    private static final int BUFFER_LEN = OutputCommand.getMaxValue();
+    private static final int BUFFER_LEN = 8192;
 
     private final ProcessBuilder builder;
     private final boolean compression;
@@ -25,18 +25,6 @@ public class OutputCommand extends Output {
     private Result result;
     private StreamConsumer outputConsumer, errorConsumer;
     private OutputStream os;
-    
-    public static int getMaxValue() {
-    	int max = Integer.MAX_VALUE;
-    	long runtimeMemory = Runtime.getRuntime().freeMemory();
-    	runtimeMemory = runtimeMemory * 90 / 100;
-    	
-    	if (max > runtimeMemory) {
-    		max = (int) runtimeMemory;
-    	}
-    	
-    	return max;
-    }
 
     /**
      * Initialize the process builder with a single command.
