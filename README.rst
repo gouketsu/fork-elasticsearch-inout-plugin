@@ -43,6 +43,14 @@ Do GZIP compression on file exports::
     }
     '
 
+Get a cat result in json format
+
+    curl -X POST 'http://localhost:9200/_export' -d '{
+	"fields": ["_id", "_source", "_version", "_index", "_type"],
+	"output_json":true
+    }
+    '
+
 Pipe the export data through a single argumentless command on the corresponding
 node, like `cat`. This command actually returns the export data in the JSON
 result's stdout field::
@@ -170,6 +178,17 @@ in the index/type mapping with the property ``"store": "yes"``::
 
 The ``fields`` element is required in the POST data of the request.
 
+``output_json``
+~~~~~~~~~~~~~~
+
+    "output_json": true
+
+This exceute a cat command. The content to export will get piped to
+Stdin of the cat command. The output result is not a string but a
+JSON, and is limitated by the heap memory
+
+- Required (if ``output_file`` or ``output_command`` have been omitted)
+
 ``output_cmd``
 ~~~~~~~~~~~~~~
 
@@ -181,7 +200,7 @@ The command to execute. Might be defined as string or as array. The
 content to export will get piped to Stdin of the command to execute.
 Some variable substitution is possible (see Variable Substitution)
 
-- Required (if ``output_file`` has been omitted)
+- Required (if ``output_file`` or ``output_json`` have been omitted)
 
 ``output_file``
 ~~~~~~~~~~~~~~~
@@ -201,7 +220,7 @@ a dry-run with the ``explain`` element set to ``true`` to find out.
 Some variable substitution in the output_file's name is also possible (see
 Variable Substitution).
 
-- Required (if ``output_cmd`` has been omitted)
+- Required (if ``output_cmd`` or ``output_json`` have been omitted)
 
 ``force_overwrite``
 ~~~~~~~~~~~~~~~~~~~
