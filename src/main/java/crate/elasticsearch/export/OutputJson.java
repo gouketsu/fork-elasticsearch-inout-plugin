@@ -15,34 +15,35 @@ import java.util.Set;
  * standard in. Get standard out and standard error messages when
  * process has finished.
  */
-public class OutputCommand extends Output {
+public class OutputJson extends Output {
 
-    private static final int BUFFER_LEN = 8192;
+    private static final int BUFFER_LEN = OutputJson.getMaxValue();
 
     private final ProcessBuilder builder;
-    private final boolean compression;
     private Process process;
     private Result result;
     private StreamConsumer outputConsumer, errorConsumer;
     private OutputStream os;
 
+    public static int getMaxValue() {
+    	int max = Integer.MAX_VALUE;
+    	long runtimeMemory = Runtime.getRuntime().freeMemory();
+    	runtimeMemory = runtimeMemory * 90 / 100;
+
+    	if (max > runtimeMemory) {
+    		max = (int) runtimeMemory;
+    	}
+    	return max;
+    }
+
     /**
      * Initialize the process builder with a single command.
      * @param command
      */
-    public OutputCommand(String command, boolean compression) {
-        builder = new ProcessBuilder(command);
-        this.compression = compression;
+    public OutputJson() {
+        builder = new ProcessBuilder("cat");
     }
 
-    /**
-     * Initialize the process with a command list.
-     * @param cmdArray
-     */
-    public OutputCommand(List<String> cmdArray, boolean compression) {
-        builder = new ProcessBuilder(cmdArray);
-        this.compression = compression;
-    }
 
     /**
      * Start the process and prepare writing to it's standard in.
@@ -56,9 +57,6 @@ public class OutputCommand extends Output {
         errorConsumer = new StreamConsumer(process.getErrorStream(),
                 BUFFER_LEN);
         os = process.getOutputStream();
-        if (compression) {
-            os = new GZIPOutputStream(os);
-        }
     }
 
     /**
