@@ -31,6 +31,7 @@ public class ExportParser implements IExportParser {
         elementParsers.putAll(queryPhase.parseElements());
         elementParsers.put("fields", new FieldsParseElement());
         elementParsers.put("output_cmd", new ExportOutputCmdParseElement());
+        elementParsers.put("output_json", new ExportOutputJsonParseElement());
         elementParsers.put("output_file", new ExportOutputFileParseElement());
         elementParsers.put("force_overwrite", new ExportForceOverwriteParseElement());
         elementParsers.put("compression", new ExportCompressionParseElement());
@@ -55,12 +56,17 @@ public class ExportParser implements IExportParser {
             }
         }
         if (context.outputFile() != null) {
-            if (context.outputCmdArray() != null || context.outputCmd() != null) {
-                throw new SearchParseException(context, "Concurrent definition of 'output_cmd' and 'output_file'");
+            if (context.outputCmdArray() != null || context.outputCmd() != null || context.outputJson() == true) {
+                throw new SearchParseException(context, "Concurrent definition of 'output_cmd', 'output_json' and 'output_file'");
             }
-        } else if (context.outputCmdArray() == null && context.outputCmd() == null) {
-            throw new SearchParseException(context, "'output_cmd' or 'output_file' has not been defined");
-        } else if (context.outputFile() == null && context.settings()) {
+        } else if (context.outputCmdArray() != null || context.outputCmd() != null) {
+        	if (context.outputJson() == true) {
+        		throw new SearchParseException(context, "Concurrent definition of 'output_cmd', 'output_json' and 'output_file'");
+            }
+        }else if (context.outputJson() == false) {
+            throw new SearchParseException(context, "'output_cmd', 'output_json' or 'output_file' has not been defined");
+        }
+        if (context.outputFile() == null && context.settings()) {
             throw new SearchParseException(context, "Parameter 'settings' requires usage of 'output_file'");
         } else if (context.outputFile() == null && context.mappings()) {
             throw new SearchParseException(context, "Parameter 'mappings' requires usage of 'output_file'");
