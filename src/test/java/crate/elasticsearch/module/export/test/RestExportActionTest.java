@@ -37,9 +37,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users", "{\"fields\": [\"name\"]}");
         assertEquals(2, response.getShardFailures().length);
         assertTrue(response.getShardFailures()[0].reason().contains(
-                "'output_cmd' or 'output_file' has not been defined"));
+		"'output_cmd', 'output_json' or 'output_file' has not been defined"));
         assertTrue(response.getShardFailures()[1].reason().contains(
-                "'output_cmd' or 'output_file' has not been defined"));
+		"'output_cmd', 'output_json' or 'output_file' has not been defined"));
     }
 
     /**
@@ -82,9 +82,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
      * standard error logs (first 8K) of every shard result.
      */
     @Test
-    public void testSingleOutputCommand() {
+    public void testSingleOutputJson() {
         ExportResponse response = executeExportRequest("users",
-                "{\"output_cmd\": \"cat\", \"fields\": [\"name\"], \"sort\":[{\"name\":{\"order\": \"asc\"}}]}");
+		"{\"output_json\": true, \"fields\": [\"name\"], \"sort\":[{\"name\":{\"order\": \"asc\"}}]}");
 
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
@@ -93,6 +93,20 @@ public class RestExportActionTest extends AbstractRestActionTest {
         assertShardInfoCommand(infos.get(1), "users", 0,
 		"[{name=bike}, {name=bus}]", "[{name=bus}, {name=bike}]", "", null);
     }
+
+    @Test
+    public void testSingleOutputCommand() {
+	ExportResponse response = executeExportRequest("users",
+		"{\"output_cmd\": \"cat\", \"fields\": [\"name\"], \"sort\":[{\"name\":{\"order\": \"asc\"}}]}");
+
+	List<Map<String, Object>> infos = getExports(response);
+	assertEquals(2, infos.size());
+	assertShardInfoCommand(infos.get(0), "users", 0,
+		"{\"name\":\"car\"}\n{\"name\":\"train\"}\n", "{\"name\":\"train\"}\n{\"name\":\"car\"}\n", "", null);
+	assertShardInfoCommand(infos.get(1), "users", 0,
+		"{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n", "{\"name\":\"bus\"}\n{\"name\":\"bike\"}\n", "", null);
+    }
+
 
     /**
      * The 'output_cmd' parameter can also be a list of arguments.
@@ -105,9 +119,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(0), "users", 0,
-		"[{name=car}, {name=train}]", "[{name=train}, {name=car}]", "", null);
+		"{\"name\":\"car\"}\n{\"name\":\"train\"}\n", "{\"name\":\"train\"}\n{\"name\":\"car\"}\n", "", null);
         assertShardInfoCommand(infos.get(1), "users", 0,
-		"[{name=bike}, {name=bus}]", "[{name=bus}, {name=bike}]", "", null);
+		"{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n", "{\"name\":\"bus\"}\n{\"name\":\"bike\"}\n", "", null);
     }
 
     /**
@@ -121,12 +135,12 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(0), "users", 0,
-		"[{\n  \"name\" : \"car\"\n},\n{\n  \"name\" : \"train\"\n}]\n", 
-		"[{\n  \"name\" : \"train\"\n},\n{\n  \"name\" : \"car\"\n}]\n",
+		"{\"name\":\"car\"}\n{\"name\":\"train\"}\n",
+		"{\"name\":\"train\"}\n{\"name\":\"car\"}\n",
 		"", null);
         assertShardInfoCommand(infos.get(1), "users", 0,
-		"[{\n  \"name\" : \"bike\"\n},\n{\n  \"name\" : \"bus\"\n}]\n", 
-		"[{\n  \"name\" : \"bus\"\n},\n{\n  \"name\" : \"bike\"\n}]\n",
+		"{\"name\":\"bike\"}\n{\"name\":\"bus\"}\n",
+		"{\"name\":\"bus\"}\n{\"name\":\"bike\"}\n",
 		"", null);
 
     }
@@ -241,9 +255,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         assertEquals(0, infos.size());
         assertEquals(2, response.getShardFailures().length);
         assertTrue(response.getShardFailures()[0].reason().contains(
-                "Concurrent definition of 'output_cmd' and 'output_file'"));
+		"Concurrent definition of 'output_cmd', 'output_json' and 'output_file'"));
         assertTrue(response.getShardFailures()[1].reason().contains(
-                "Concurrent definition of 'output_cmd' and 'output_file'"));
+		"Concurrent definition of 'output_cmd', 'output_json' and 'output_file'"));
 
     }
 
@@ -399,8 +413,8 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(2, infos.size());
         assertShardInfoCommand(infos.get(1), "users", 0,
-		"[{_id=4, _version=1.0, _source={name=bus}}, {_id=2, _version=2.0, _source={name=electric bike}}]",
-		"[{_id=2, _version=2.0, _source={name=electric bike}}, {_id=1, _version=1.0, _source={name=bus}}]",
+		"{\"_id\":\"4\",\"_version\":1,\"_source\":{\"name\":\"bus\"}}\n{\"_id\":\"2\",\"_version\":2,\"_source\":{\"name\":\"electric bike\"}}\n",
+		"{\"_id\":\"2\",\"_version\":2,\"_source\":{\"name\":\"electric bike\"}}\n{\"_id\":\"1\",\"_version\":1,\"_source\"={\"name\":\"bus\"}}\n",
                 "", null);
 
     }
@@ -409,7 +423,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
      * External versions can start with 0 and also are able to get exported.
      */
     @Test
-    public void testExternalVersion() {
+    public void testJsonExternalVersion() {
         prepareCreate("test").setSettings(ImmutableSettings.builder().put("index.number_of_shards", 3).build()).execute().actionGet();
         ensureGreen("test");
 
@@ -418,7 +432,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
         refresh();
 
         ExportResponse response = executeExportRequest("test",
-                "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_version\", \"_source\"]}");
+                "{\"output_json\": true, \"fields\": [\"_id\", \"_version\", \"_source\"]}");
 
         List<Map<String, Object>> infos = getExports(response);
         assertEquals(3, infos.size());
@@ -434,6 +448,34 @@ public class RestExportActionTest extends AbstractRestActionTest {
     }
 
     /**
+     * External versions can start with 0 and also are able to get exported.
+     */
+    @Test
+    public void testExternalVersion() {
+	prepareCreate("test").setSettings(ImmutableSettings.builder().put("index.number_of_shards", 3).build()).execute().actionGet();
+	ensureGreen("test");
+
+	cluster().masterClient().prepareIndex("test", "type", "1").setSource("field1", "value1_1").setVersion(
+		0).setVersionType(VersionType.EXTERNAL).execute().actionGet();
+	refresh();
+
+	ExportResponse response = executeExportRequest("test",
+		"{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_version\", \"_source\"]}");
+
+	List<Map<String, Object>> infos = getExports(response);
+
+	assertEquals(3, infos.size());
+	String findStdOut = "";
+	for (Map<String, Object> one : infos) {
+	   if (one.get("stdout") != null) {
+	       findStdOut += one.get("stdout").toString();
+	   }
+	}
+	assertThat(findStdOut.toString(),
+			   containsString("{\"_id\":\"1\",\"_version\":0,\"_source\":{\"field1\":\"value1_1\"}}\n"));
+
+    }
+    /**
      * The _timestamp field is not returned if the mapping does not store the timestamps.
      */
     @Test
@@ -442,8 +484,8 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_timestamp\"], \"sort\":[\"_id\"]}");
         List<Map<String, Object>> infos = getExports(response);
         assertThat(infos.get(0).get("stdout").toString(),
-        		either(containsString("[{_id=1}, {_id=3}]")).or(
-        				containsString("[{_id=3}, {_id=1}]")));
+			either(containsString("{\"_id\":\"1\"}\n{\"_id\":\"3\"}\n")).or(
+					containsString("{\"_id\":\"3\"}\n{\"_id\":\"1\"}\n")));
     }
 
     /**
@@ -466,7 +508,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_timestamp\"]}");
 
         List<Map<String, Object>> infos = getExports(response);
-	assertEquals("[{_id=1, _timestamp=123.0}]", infos.get(1).get("stdout").toString());
+	assertEquals("{\"_id\":\"1\",\"_timestamp\":123}\n", infos.get(1).get("stdout").toString());
     }
 
     /**
@@ -477,8 +519,8 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_ttl\"]}");
         List<Map<String, Object>> infos = getExports(response);
         assertThat(infos.get(0).get("stdout").toString(),
-        		either(containsString("[{_id=1}, {_id=3}]")).or(
-        				containsString("[{_id=3}, {_id=1}]")));
+			either(containsString("{\"_id\":\"1\"}\n{\"_id\":\"3\"}\n")).or(
+					containsString("{\"_id\":\"3\"}\n{\"_id\":\"1\"}\n")));
     }
 
     /**
@@ -502,12 +544,9 @@ public class RestExportActionTest extends AbstractRestActionTest {
         List<Map<String, Object>> infos = getExports(response);
         String stdout = infos.get(1).get("stdout").toString();
 
-	assertTrue("failed: " + stdout, stdout.startsWith("[{_id=1, _ttl="));
-	String lsplit  = stdout.substring(14);
-	double first=Double.valueOf(lsplit.substring(0, lsplit.length() - 5));
-	String lsplit2 = lsplit.substring(lsplit.length() - 4);
-	long second = Long.valueOf(lsplit2.substring(0, lsplit2.length() - 2));
-	long ttl = (long)(first * (Math.pow(10, second)));
+	assertTrue("failed: " + stdout, stdout.startsWith("{\"_id\":\"1\",\"_ttl\":"));
+	String lsplit  = stdout.substring(18);
+	long ttl = Long.valueOf((lsplit.substring(0, lsplit.length()-2)));
         long diff = ttl - now.getTime();
         assertTrue("failed: " + diff, diff < 86400000 && diff > 86390000);
     }
@@ -521,9 +560,11 @@ public class RestExportActionTest extends AbstractRestActionTest {
         ExportResponse response = executeExportRequest("users",
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_type\", \"_index\"]}");
         List<Map<String, Object>> infos = getExports(response);
-	assertEquals("[{_id=2, _type=d, _index=users}, " +
-		"{_id=4, _type=d, _index=users}]",
-		infos.get(1).get("stdout").toString());
+        assertThat(infos.get(1).get("stdout").toString(),
+        		   either(containsString( "{\"_id\":\"2\",\"_type\":\"d\",\"_index\":\"users\"}\n" +
+        				   			      "{\"_id\":\"4\",\"_type\":\"d\",\"_index\":\"users\"}\n")).or(
+        				  containsString( "{\"_id\":\"4\",\"_type\":\"d\",\"_index\":\"users\"}\n" +
+                                          "{\"_id\":\"2\",\"_type\":\"d\",\"_index\":\"users\"}\n")));
     }
 
     /**
@@ -538,11 +579,11 @@ public class RestExportActionTest extends AbstractRestActionTest {
                 "{\"output_cmd\": \"cat\", \"fields\": [\"_id\", \"_source\", \"_routing\"], \"sort\":[\"_id\"]}");
         List<Map<String, Object>> infos = getExports(response);
         assertThat(infos.get(1).get("stdout").toString(),
-        			containsString("{_id=1, _source={field1=value1}, _routing=2}"));
+				containsString("{\"_id\":\"1\",\"_source\":{\"field1\":\"value1\"},\"_routing\":\"2\"}"));
         assertThat(infos.get(1).get("stdout").toString(),
-        			containsString("{_id=2, _source={name=bike}}"));
+				containsString("{\"_id\":\"2\",\"_source\":{\"name\":\"bike\"}}"));
         assertThat(infos.get(1).get("stdout").toString(),
-        				containsString("{_id=4, _source={name=bus}}"));
+					containsString("{\"_id\":\"4\",\"_source\":{\"name\":\"bus\"}}"));
     }
 
     /**

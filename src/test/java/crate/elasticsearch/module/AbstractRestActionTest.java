@@ -24,7 +24,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Abstract base class for the plugin's rest action tests. Sets up the client
  * and delivers some base functionality needed for all tests.
  */
-@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numDataNodes = 2)
+@ElasticsearchIntegrationTest.ClusterScope(scope = ElasticsearchIntegrationTest.Scope.SUITE, numDataNodes = 2, numClientNodes = 0)
 public abstract class AbstractRestActionTest extends ElasticsearchIntegrationTest {
 
     @Override

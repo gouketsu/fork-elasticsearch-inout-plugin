@@ -24,6 +24,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     private List<String> cmdArray;
     private String cmd;
     private String file;
+    private boolean json;
     private boolean dryRun = false;
     private Text node;
     private long numExported;
@@ -46,13 +47,14 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param exitCode    exit code of the executed command
      * @param numExported number of exported documents
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file, boolean compression, String stderr, String stdout, int exitCode, long numExported) {
+    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression, String stderr, String stdout, int exitCode, long numExported) {
         super(index, shardId);
         this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
+	this.json = cmdJson;
         this.file = file;
-	this.compression = compression;
+	    this.compression = compression;
         this.stderr = stderr;
         this.stdout = stdout;
         this.exitCode = exitCode;
@@ -69,12 +71,13 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param cmdArray executed command array (might be null)
      * @param file     written file (might be null)
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, String file, boolean compression) {
+    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression) {
 	super(index, shardId);
 
-	this.node = node;
+		this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
+	this.json = cmdJson;
         this.file = file;
         this.dryRun = true;
 	this.compression = compression;
@@ -89,6 +92,10 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
 
     public List<String> getCmdArray() {
         return cmdArray;
+    }
+
+    public boolean getJson() {
+	return json;
     }
 
     public String getFile() {
@@ -136,6 +143,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         super.readFrom(in);
         cmd = in.readOptionalString();
         cmdArray = new ArrayList<String>(Arrays.asList((String[]) in.readStringArray()));
+	json = in.readOptionalBoolean();
         file = in.readOptionalString();
         stderr = in.readOptionalString();
         stdout = in.readOptionalString();
@@ -155,6 +163,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         } else {
             out.writeStringArray(cmdArray.toArray(new String[cmdArray.size()]));
         }
+	out.writeOptionalBoolean(json);
 
         out.writeOptionalString(file);
         out.writeOptionalString(stderr);
@@ -182,17 +191,19 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         builder.field("numExported", getNumExported());
         if (getFile() != null) {
             builder.field("output_file", getFile());
-        } else {
-	    builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
-	    if (!dryRun()) {
+	} else if (getJson() == true) {
+		builder.field("output_json", getJson());
 		builder.field("stderr", getStderr());
-		if (compression){
-			builder.field("stdout", getStdout());
-		}else{
-			builder.field("stdout", getObject(getStdout()));
-		}
+		builder.field("stdout", getObject(getStdout()));
 		builder.field("exitcode", getExitCode());
-	    }
+	}else {
+		builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
+		if (!dryRun()) {
+			builder.field("stderr", getStderr());
+			builder.field("stdout", getStdout());
+
+			builder.field("exitcode", getExitCode());
+		}
 	}
         builder.endObject();
         return builder;
