@@ -3,6 +3,7 @@ package crate.elasticsearch.action.export;
 import crate.elasticsearch.export.Output;
 import crate.elasticsearch.export.OutputCommand;
 import crate.elasticsearch.export.OutputFile;
+import crate.elasticsearch.export.OutputJson;
 
 import org.elasticsearch.cache.recycler.CacheRecycler;
 import org.elasticsearch.cache.recycler.PageCacheRecycler;
@@ -31,6 +32,7 @@ public class ExportContext extends DefaultSearchContext {
 
     private List<String> outputCmdArray;
     private String outputCmd;
+    private boolean outputJson = false;
     private String outputFile;
     private boolean forceOverride = false;
     private boolean compression;
@@ -59,9 +61,17 @@ public class ExportContext extends DefaultSearchContext {
     public String outputCmd() {
         return outputCmd;
     }
-
+    
     public void outputCmd(String outputCmd) {
         this.outputCmd = applyVars(outputCmd);
+    }
+
+    public boolean outputJson() {
+    	return outputJson;
+    }
+
+    public void outputJson(boolean outputJson) {
+        this.outputJson = outputJson;
     }
 
     public String outputFile() {
@@ -152,6 +162,8 @@ public class ExportContext extends DefaultSearchContext {
     public Output createOutput() {
         if (outputFile()!=null){
             return new OutputFile(outputFile(), forceOverride(), compression);
+        } else if (outputJson () == true) {
+        	return new OutputJson();
         } else {
             if (outputCmd()!=null){
                 return new OutputCommand(outputCmd(), compression);
