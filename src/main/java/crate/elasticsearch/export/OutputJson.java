@@ -17,7 +17,6 @@ import java.util.Set;
  */
 public class OutputJson extends Output {
 
-    private static final int BUFFER_LEN = OutputJson.getMaxValue();
 
     private final ProcessBuilder builder;
     private Process process;
@@ -26,22 +25,23 @@ public class OutputJson extends Output {
     private OutputStream os;
 
     public static int getMaxValue() {
-	int max = Integer.MAX_VALUE;
-	long runtimeMemory = Runtime.getRuntime().freeMemory();
-	runtimeMemory = runtimeMemory * 90 / 100;
-
-	if (max > runtimeMemory) {
-		max = (int) runtimeMemory;
-	}
-	return max;
+		int max = Integer.MAX_VALUE;
+		long runtimeMemory = Runtime.getRuntime().freeMemory();
+		runtimeMemory = runtimeMemory * 95 / 100;
+	
+		if (max > runtimeMemory) {
+			max = (int) runtimeMemory;
+		}
+		return max;
     }
+	    
 
     /**
      * Initialize the process builder with a single command.
      * @param command
      */
     public OutputJson() {
-	builder = new ProcessBuilder("cat");
+    	builder = new ProcessBuilder("cat");
     }
 
 
@@ -51,19 +51,19 @@ public class OutputJson extends Output {
      * @throws IOException
      */
     public void open() throws IOException {
-	process = builder.start();
-	outputConsumer = new StreamConsumer(process.getInputStream(),
-		BUFFER_LEN);
-	errorConsumer = new StreamConsumer(process.getErrorStream(),
-		BUFFER_LEN);
-	os = process.getOutputStream();
+    	process = builder.start();
+		outputConsumer = new StreamConsumer(process.getInputStream(),
+				OutputJson.getMaxValue());
+		errorConsumer = new StreamConsumer(process.getErrorStream(),
+				OutputJson.getMaxValue());
+		os = process.getOutputStream();
     }
 
     /**
      * Get the output stream to write to the process' standard in.
      */
     public OutputStream getOutputStream() {
-	return os;
+    	return os;
     }
 
     /**
@@ -73,25 +73,25 @@ public class OutputJson extends Output {
      * @throws IOException
      */
     public void close() throws IOException {
-	if (process != null) {
-
-	    os.flush();
-	    os.close();
-
-	    result = new Result();
-	    try {
-		result.exit = process.waitFor();
-	    } catch (InterruptedException e) {
-		result.exit = process.exitValue();
-	    }
-	    outputConsumer.waitFor();
-	    result.stdOut = outputConsumer.getBufferedOutput();
-	    errorConsumer.waitFor();
-	    result.stdErr = errorConsumer.getBufferedOutput();
-	}
+		if (process != null) {
+	
+		    os.flush();
+		    os.close();
+	
+		    result = new Result();
+		    try {
+			result.exit = process.waitFor();
+		    } catch (InterruptedException e) {
+			result.exit = process.exitValue();
+		    }
+		    outputConsumer.waitFor();
+		    result.stdOut = outputConsumer.getBufferedOutput();
+		    errorConsumer.waitFor();
+		    result.stdErr = errorConsumer.getBufferedOutput();
+		}
     }
 
     public Result result() {
-	return result;
+    	return result;
     }
 }
