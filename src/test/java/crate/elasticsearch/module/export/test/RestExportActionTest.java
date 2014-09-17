@@ -390,7 +390,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
 
         assertEquals(2, response.getFailedShards());
         assertTrue("failed: " + response.getShardFailures()[0].reason(), response.getShardFailures()[0].reason().contains(
-                "Compression format 'lzıv' unknown or not supported."));
+                "Compression format 'lziv' unknown or not supported."));
 
         ExportResponse response2 = executeExportRequest("users",
                 "{\"output_file\": \"/tmp/${cluster}.${shard}.${index}.nocompressexport.gz\", \"fields\": [\"name\", \"_id\"], \"compression\": \"\"}");
@@ -444,7 +444,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
            }
         }
         assertEquals(
-		"[][{_id=1, _version=0, _source={field1=value1_1}}][]",
+		"[][{_id=1, _version=0.0, _source={field1=value1_1}}][]",
 		findStdOut.toString());
     }
 
@@ -465,7 +465,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
 
         List<Map<String, Object>> infos = getExports(response);
       
-        assertEquals(1, infos.size());
+        assertEquals(3, infos.size());
         String findStdOut = "";
         for (Map<String, Object> one : infos) {
            if (one.get("stdout") != null) {
