@@ -418,7 +418,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
            }
         }
         assertEquals(
-		"[][{_id=1, _version=0, _source={field1=value1_1}}][]",
+		"[][{_id=1, _version=0.0, _source={field1=value1_1}}][]",
 		findStdOut.toString());
     }
 
