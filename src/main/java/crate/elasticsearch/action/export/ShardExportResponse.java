@@ -195,6 +195,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         	builder.field("output_json", getJson());
         	builder.field("stderr", getStderr());
         	builder.field("stdout", getObject(getStdout()));
+        	stdout=null;
         	builder.field("exitcode", getExitCode());
         }else {
         	builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
