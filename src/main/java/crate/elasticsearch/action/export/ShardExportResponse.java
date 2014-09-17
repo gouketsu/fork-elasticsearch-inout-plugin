@@ -52,7 +52,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
-	this.json = cmdJson;
+        this.json = cmdJson;
         this.file = file;
 	    this.compression = compression;
         this.stderr = stderr;
@@ -77,10 +77,10 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
 		this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
-	this.json = cmdJson;
+        this.json = cmdJson;
         this.file = file;
         this.dryRun = true;
-	this.compression = compression;
+        this.compression = compression;
     }
 
 
@@ -95,7 +95,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     }
 
     public boolean getJson() {
-	return json;
+    	return json;
     }
 
     public String getFile() {
@@ -128,7 +128,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     }
 
     public boolean getCompression() {
-	return compression;
+    	return compression;
     }
 
     public static ShardExportResponse readNew(StreamInput in) throws IOException {
@@ -143,7 +143,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         super.readFrom(in);
         cmd = in.readOptionalString();
         cmdArray = new ArrayList<String>(Arrays.asList((String[]) in.readStringArray()));
-	json = in.readOptionalBoolean();
+        json = in.readOptionalBoolean();
         file = in.readOptionalString();
         stderr = in.readOptionalString();
         stdout = in.readOptionalString();
@@ -151,7 +151,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         numExported = in.readVLong();
         node = in.readOptionalText();
         dryRun = in.readBoolean();
-	compression = in.readBoolean();
+        compression = in.readBoolean();
     }
 
     @Override
@@ -160,24 +160,24 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         out.writeOptionalString(cmd);
         if (cmdArray == null) {
             out.writeStringArrayNullable(null);
-	} else {
-	    out.writeStringArray(cmdArray.toArray(new String[cmdArray.size()]));
-	}
-	out.writeOptionalBoolean(json);
-
-	out.writeOptionalString(file);
-	out.writeOptionalString(stderr);
-	out.writeOptionalString(stdout);
-	out.writeVInt(exitCode);
-	out.writeVLong(numExported);
-	out.writeOptionalText(node);
-	out.writeBoolean(dryRun);
-	out.writeBoolean(compression);
+        } else {
+        	out.writeStringArray(cmdArray.toArray(new String[cmdArray.size()]));
+        }
+		out.writeOptionalBoolean(json);
+	
+		out.writeOptionalString(file);
+		out.writeOptionalString(stderr);
+		out.writeOptionalString(stdout);
+		out.writeVInt(exitCode);
+		out.writeVLong(numExported);
+		out.writeOptionalText(node);
+		out.writeBoolean(dryRun);
+		out.writeBoolean(compression);
     }
 
     private static Object getObject(final String jsonString) {
-	Gson gson = new Gson();
-	return gson.fromJson(jsonString, Object.class);
+		Gson gson = new Gson();
+		return gson.fromJson(jsonString, Object.class);
     }
 
     @Override
@@ -188,24 +188,25 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         if (node != null) {
             builder.field("node_id", node);
         }
-	builder.field("numExported", getNumExported());
-	if (getFile() != null) {
-	    builder.field("output_file", getFile());
-	} else if (getJson() == true) {
-		builder.field("output_json", getJson());
-		builder.field("stderr", getStderr());
-		builder.field("stdout", getObject(getStdout()));
-		builder.field("exitcode", getExitCode());
-	}else {
-		builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
-		if (!dryRun()) {
+		builder.field("numExported", getNumExported());
+		if (getFile() != null) {
+		    builder.field("output_file", getFile());
+		} else if (getJson() == true) {
+			builder.field("output_json", getJson());
 			builder.field("stderr", getStderr());
-			builder.field("stdout", getStdout());
-
+			builder.field("stdout", getObject(getStdout()));
+			stdout = null; 
 			builder.field("exitcode", getExitCode());
+		}else {
+			builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
+			if (!dryRun()) {
+				builder.field("stderr", getStderr());
+				builder.field("stdout", getStdout());
+	
+				builder.field("exitcode", getExitCode());
+			}
 		}
-	}
-	builder.endObject();
-	return builder;
+		builder.endObject();
+		return builder;
     }
 }
