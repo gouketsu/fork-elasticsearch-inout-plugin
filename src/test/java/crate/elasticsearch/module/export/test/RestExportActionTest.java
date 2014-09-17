@@ -361,11 +361,11 @@ public class RestExportActionTest extends AbstractRestActionTest {
         new File(filename_0).delete();
         new File(filename_1).delete();
         ExportResponse response = executeExportRequest("users",
-                "{\"output_file\": \"/tmp/${cluster}.${shard}.${index}.lzivexport.gz\", \"fields\": [\"name\", \"_id\"], \"compression\": \"LZV\"}");
+                "{\"output_file\": \"/tmp/${cluster}.${shard}.${index}.lzivexport.gz\", \"fields\": [\"name\", \"_id\"], \"compression\": \"LZIV\"}");
 
         assertEquals(2, response.getFailedShards());
         assertTrue("failed: " + response.getShardFailures()[0].reason(), response.getShardFailures()[0].reason().contains(
-		"Compression format 'lzv' unknown or not supported."));
+                "Compression format 'lziv' unknown or not supported."));
 
         ExportResponse response2 = executeExportRequest("users",
                 "{\"output_file\": \"/tmp/${cluster}.${shard}.${index}.nocompressexport.gz\", \"fields\": [\"name\", \"_id\"], \"compression\": \"\"}");
@@ -418,7 +418,7 @@ public class RestExportActionTest extends AbstractRestActionTest {
            }
         }
         assertEquals(
-		"[][{_id=1, _version=1, _source={field1=value1_1}}][]",
+		"[][{_id=1, _version=1.0, _source={field1=value1_1}}][]",
 		findStdOut.toString());
     }
 
