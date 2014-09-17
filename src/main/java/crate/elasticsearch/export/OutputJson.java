@@ -17,8 +17,6 @@ import java.util.Set;
  */
 public class OutputJson extends Output {
 
-    private static final int BUFFER_LEN = OutputJson.getMaxValue();
-
     private final ProcessBuilder builder;
     private Process process;
     private Result result;
@@ -26,14 +24,14 @@ public class OutputJson extends Output {
     private OutputStream os;
 
     public static int getMaxValue() {
-	int max = Integer.MAX_VALUE;
-	long runtimeMemory = Runtime.getRuntime().freeMemory();
-	runtimeMemory = runtimeMemory * 90 / 100;
+    	int max = Integer.MAX_VALUE;
+    	long runtimeMemory = Runtime.getRuntime().freeMemory();
+    	runtimeMemory = runtimeMemory * 95 / 100;
 
-	if (max > runtimeMemory) {
-		max = (int) runtimeMemory;
-	}
-	return max;
+    	if (max > runtimeMemory) {
+    		max = (int) runtimeMemory;
+    	}
+    	return max;
     }
 
     /**
@@ -53,9 +51,9 @@ public class OutputJson extends Output {
     public void open() throws IOException {
 	process = builder.start();
 	outputConsumer = new StreamConsumer(process.getInputStream(),
-		BUFFER_LEN);
+			OutputJson.getMaxValue());
 	errorConsumer = new StreamConsumer(process.getErrorStream(),
-		BUFFER_LEN);
+			OutputJson.getMaxValue());
 	os = process.getOutputStream();
     }
 
