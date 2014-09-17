@@ -6,16 +6,12 @@ import org.elasticsearch.common.io.stream.StreamOutput;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentHelper;
-import org.elasticsearch.common.bytes.BytesArray;
-import org.elasticsearch.common.bytes.BytesReference;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
+import com.google.gson.*;
 
 /**
  * Internal export response of a shard export request executed directly against a specific shard.
@@ -33,8 +29,7 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
     private Text node;
     private long numExported;
     private boolean compression;
-    private BytesReference sourceAsBytes;
-    private static final String[] EMPTY_ARRAY = {};
+
     ShardExportResponse() {
     }
 
@@ -87,6 +82,9 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         this.dryRun = true;
         this.compression = compression;
     }
+
+
+
 
     public String getCmd() {
         return cmd;
@@ -177,26 +175,9 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         out.writeBoolean(compression);
     }
 
-    private static final char[] hexChar = {
-        '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
-    };
-
-    private static String unicodeEscape(String s) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if ((c >> 7) > 0) {
-                sb.append("\\u");
-                sb.append(hexChar[(c >> 12) & 0xF]); // append the hex character for the left-most 4-bits
-                sb.append(hexChar[(c >> 8) & 0xF]);  // hex for the second group of 4-bits from the left
-                sb.append(hexChar[(c >> 4) & 0xF]);  // hex for the third group
-                sb.append(hexChar[c & 0xF]);         // hex for the last group, e.g., the right most 4-bits
-            }
-            else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
+    private static Object getObject(final String jsonString) {
+    	Gson gson = new Gson();
+    	return gson.fromJson(jsonString, Object.class);
     }
 
     @Override
@@ -213,20 +194,15 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
         } else if (getJson() == true) {
         	builder.field("output_json", getJson());
         	builder.field("stderr", getStderr());
+        	builder.field("stdout", getObject(getStdout()));
+        	stdout=null;
         	builder.field("exitcode", getExitCode());
-        	
-        	if (getStdout().length() != 3){
-             	this.sourceAsBytes = new BytesArray(unicodeEscape(getStdout()).getBytes());
-        		XContentHelper.writeRawField("stdout", sourceAsBytes, builder, params);
-        	}else{
-        		builder.field("stdout", EMPTY_ARRAY);
-        	}
-        	
         }else {
         	builder.field("output_cmd", getCmd() != null ? getCmd() : getCmdArray());
         	if (!dryRun()) {
         		builder.field("stderr", getStderr());
-        		builder.field("stdout", unicodeEscape(getStdout()));
+        		builder.field("stdout", getStdout());
+        		
         		builder.field("exitcode", getExitCode());
         	}
         }
