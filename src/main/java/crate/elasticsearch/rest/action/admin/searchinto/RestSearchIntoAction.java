@@ -37,7 +37,7 @@ public class RestSearchIntoAction extends BaseRestHandler {
     @Inject
     public RestSearchIntoAction(Settings settings, Client client,
             RestController controller) {
-        super(settings, client);
+        super(settings, controller, client);
         registerHandlers(controller);
     }
 

@@ -36,7 +36,7 @@ public class RestExportAction extends BaseRestHandler {
 
     @Inject
     public RestExportAction(Settings settings, Client client, RestController controller) {
-        super(settings, client);
+        super(settings, controller, client);
         registerHandlers(controller);
     }
 

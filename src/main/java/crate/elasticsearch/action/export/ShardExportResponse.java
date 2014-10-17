@@ -1,16 +1,20 @@
 package crate.elasticsearch.action.export;
 
+import org.elasticsearch.action.OriginalIndices;
+import org.elasticsearch.action.support.broadcast.BroadcastOperationRequest;
 import org.elasticsearch.action.support.broadcast.BroadcastShardOperationResponse;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.shard.ShardId;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import com.google.gson.*;
 
 /**
@@ -47,8 +51,8 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param exitCode    exit code of the executed command
      * @param numExported number of exported documents
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression, String stderr, String stdout, int exitCode, long numExported) {
-        super(index, shardId);
+    public ShardExportResponse(Text node, String index, ShardId shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression, String stderr, String stdout, int exitCode, long numExported) {
+        super(shardId);
         this.node = node;
         this.cmd = cmd;
         this.cmdArray = cmdArray;
@@ -71,8 +75,8 @@ class ShardExportResponse extends BroadcastShardOperationResponse implements ToX
      * @param cmdArray executed command array (might be null)
      * @param file     written file (might be null)
      */
-    public ShardExportResponse(Text node, String index, int shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression) {
-	super(index, shardId);
+    public ShardExportResponse(Text node, String index, ShardId shardId, String cmd, List<String> cmdArray, boolean cmdJson, String file, boolean compression) {
+	super(shardId);
 
 		this.node = node;
         this.cmd = cmd;

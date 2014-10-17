@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ShardOperationFailedException;
+import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.action.support.DefaultShardOperationFailedException;
 import org.elasticsearch.action.support.broadcast.BroadcastShardOperationFailedException;
 import org.elasticsearch.action.support.broadcast.TransportBroadcastOperationAction;
@@ -30,10 +31,13 @@ import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.SearchShardTarget;
 import org.elasticsearch.search.internal.SearchContext;
+import org.elasticsearch.search.internal.ShardSearchLocalRequest;
 import org.elasticsearch.search.internal.ShardSearchRequest;
 import org.elasticsearch.search.query.QueryPhaseExecutionException;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
+
+import crate.elasticsearch.action.export.ExportContext;
 import crate.elasticsearch.action.searchinto.parser.ISearchIntoParser;
 import crate.elasticsearch.script.ScriptProvider;
 import crate.elasticsearch.searchinto.Writer;
@@ -64,12 +68,13 @@ public abstract class AbstractTransportSearchIntoAction extends
     @Inject
     public AbstractTransportSearchIntoAction(Settings settings, String name,
             ThreadPool threadPool, ClusterService clusterService,
-            TransportService transportService,
+            TransportService transportService, ActionFilters actionFilters,
             CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
             IndicesService indicesService, ScriptService scriptService,
             ScriptProvider scriptProvider,
             ISearchIntoParser parser, Writer writer) {
-        super(settings, name, threadPool, clusterService, transportService);
+    	super(settings, name, threadPool, clusterService, transportService, actionFilters);
+
         this.indicesService = indicesService;
         this.cacheRecycler = cacheRecycler;
         this.pageRecycler = pageRecycler;
@@ -99,7 +104,7 @@ public abstract class AbstractTransportSearchIntoAction extends
             SearchIntoRequest request) {
         String[] filteringAliases = clusterService.state().metaData()
                 .filteringAliases(shard.index(), request.indices());
-        return new ShardSearchIntoRequest(shard.index(), shard.id(),
+        return new ShardSearchIntoRequest(shard.index(), shard.shardId(),
                 filteringAliases, request);
     }
 
@@ -167,16 +172,18 @@ public abstract class AbstractTransportSearchIntoAction extends
             request) throws ElasticsearchException {
 
         IndexService indexService = indicesService.indexServiceSafe(
-                request.index());
-        IndexShard indexShard = indexService.shardSafe(request.shardId());
+                request.shardId().getIndex());
+        IndexShard indexShard = indexService.shardSafe(request.shardId().id());
 
         SearchShardTarget shardTarget = new SearchShardTarget(
-                clusterService.localNode().id(), request.index(),
-                request.shardId());
-        SearchIntoContext context = new SearchIntoContext(0,
-            new ShardSearchRequest().types(request.types()).filteringAliases(request.filteringAliases()),
-            shardTarget, indexShard.acquireSearcher("inout-plugin"), indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler
+                clusterService.localNode().id(), request.shardId().getIndex(),
+                request.shardId().id());
+        SearchIntoContext context = new SearchIntoContext(
+        	                0, new ShardSearchLocalRequest(request.types(), System.currentTimeMillis(), request.filteringAliases()),
+        	                shardTarget, indexShard.acquireSearcher("inout-plugin"), indexService, indexShard, scriptService,
+        	                cacheRecycler,
+        	                pageRecycler, 
+        	                threadPool.estimatedTimeInMillisCounter()
         );
         SearchIntoContext.setCurrent(context);
         try {
@@ -188,12 +195,12 @@ public abstract class AbstractTransportSearchIntoAction extends
             try {
                 if (context.explain()) {
                     return new ShardSearchIntoResponse(
-                            shardTarget.nodeIdText(), request.index(),
+                            shardTarget.nodeIdText(), request.shardId().getIndex(),
                             request.shardId());
                 } else {
                     WriterResult res = writer.execute(context);
                     return new ShardSearchIntoResponse(
-                            shardTarget.nodeIdText(), request.index(),
+                            shardTarget.nodeIdText(), request.shardId().getIndex(),
                             request.shardId(), res);
                 }
 

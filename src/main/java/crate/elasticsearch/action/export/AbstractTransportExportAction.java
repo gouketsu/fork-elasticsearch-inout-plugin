@@ -5,6 +5,7 @@ import crate.elasticsearch.export.Exporter;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ShardOperationFailedException;
+import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.action.support.DefaultShardOperationFailedException;
 import org.elasticsearch.action.support.broadcast.BroadcastShardOperationFailedException;
 import org.elasticsearch.action.support.broadcast.TransportBroadcastOperationAction;
@@ -26,7 +27,9 @@ import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.SearchShardTarget;
 import org.elasticsearch.search.internal.SearchContext;
+import org.elasticsearch.search.internal.ShardSearchLocalRequest;
 import org.elasticsearch.search.internal.ShardSearchRequest;
+import org.elasticsearch.search.internal.ShardSearchTransportRequest;
 import org.elasticsearch.search.query.QueryPhaseExecutionException;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
@@ -61,12 +64,12 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
 
     @Inject
     public AbstractTransportExportAction(Settings settings, String name, ThreadPool threadPool, ClusterService clusterService,
-                                         TransportService transportService, IndicesService indicesService,
+                                         TransportService transportService, ActionFilters actionFilters, IndicesService indicesService,
                                          ScriptService scriptService,
                                          CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                                          IExportParser exportParser, Exporter exporter,
                                          NodeEnvironment nodeEnv) {
-        super(settings, name, threadPool, clusterService, transportService);
+        super(settings, name, threadPool, clusterService, transportService, actionFilters);
         this.indicesService = indicesService;
         this.scriptService = scriptService;
         this.cacheRecycler = cacheRecycler;
@@ -99,7 +102,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
     @Override
     protected ShardExportRequest newShardRequest(int nbshards, ShardRouting shard, ExportRequest request) {
         String[] filteringAliases = clusterService.state().metaData().filteringAliases(shard.index(), request.indices());
-        return new ShardExportRequest(shard.index(), shard.id(), filteringAliases, request);
+        return new ShardExportRequest(shard.index(), shard.shardId(), filteringAliases, request);
     }
 
     @Override
@@ -152,14 +155,18 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
     protected ShardExportResponse shardOperation(ShardExportRequest request) throws ElasticsearchException {
 
 
-        IndexService indexService = indicesService.indexServiceSafe(request.index());
-        IndexShard indexShard = indexService.shardSafe(request.shardId());
+        IndexService indexService = indicesService.indexServiceSafe(request.shardId().getIndex());
+        IndexShard indexShard = indexService.shardSafe(request.shardId().id());
 
-        SearchShardTarget shardTarget = new SearchShardTarget(clusterService.localNode().id(), request.index(), request.shardId());
-        ExportContext context = new ExportContext(0,
-            new ShardSearchRequest().types(request.types()).filteringAliases(request.filteringAliases()),
-            shardTarget, indexShard.acquireSearcher("inout-plugin"), indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler, nodePath);
+        SearchShardTarget shardTarget = new SearchShardTarget(clusterService.localNode().id(), request.shardId().getIndex(), 
+        		request.shardId().id());
+        
+        
+        ExportContext context = new ExportContext(
+                0, new ShardSearchLocalRequest(request.types(), System.currentTimeMillis(), request.filteringAliases()),
+                shardTarget, indexShard.acquireSearcher("inout-plugin"), indexService, indexShard, scriptService,
+                cacheRecycler, pageRecycler, nodePath, threadPool.estimatedTimeInMillisCounter());
+
         ExportContext.setCurrent(context);
 
         try {
@@ -169,10 +176,17 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
             exporter.check(context);
             try {
                 if (context.explain()) {
-                	return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputJson(), context.outputFile(), context.compression());
+                	return new ShardExportResponse(shardTarget.nodeIdText(), 
+                								   request.shardId().getIndex(),
+                								   request.shardId(),  
+                								   context.outputCmd(), 
+                								   context.outputCmdArray(), 
+                								   context.outputJson(), 
+                								   context.outputFile(), 
+                								   context.compression());
                 } else {
                     Exporter.Result res = exporter.execute(context);
-                    return new ShardExportResponse(shardTarget.nodeIdText(), request.index(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputJson(),  context.outputFile(), context.compression(), res.outputResult.stdErr, res.outputResult.stdOut, res.outputResult.exit, res.numExported);
+                    return new ShardExportResponse(shardTarget.nodeIdText(), request.shardId().getIndex(), request.shardId(), context.outputCmd(), context.outputCmdArray(), context.outputJson(),  context.outputFile(), context.compression(), res.outputResult.stdErr, res.outputResult.stdOut, res.outputResult.exit, res.numExported);
                 }
 
             } catch (Exception e) {

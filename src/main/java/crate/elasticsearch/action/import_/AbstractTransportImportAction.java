@@ -6,6 +6,7 @@ import crate.elasticsearch.script.ScriptProvider;
 
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.FailedNodeException;
+import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.action.support.nodes.TransportNodesOperationAction;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterService;
@@ -39,12 +40,12 @@ public abstract class AbstractTransportImportAction extends TransportNodesOperat
     @Inject
     public AbstractTransportImportAction(Settings settings, String name, ClusterName clusterName,
                                          ThreadPool threadPool, ClusterService clusterService,
-                                         TransportService transportService, 
+                                         TransportService transportService, ActionFilters actionFilters,
                                          ScriptService scriptService,
                                          ScriptProvider scriptProvider, 
                                          IImportParser importParser, 
                                          Importer importer, NodeEnvironment nodeEnv) {
-        super(settings, name, clusterName, threadPool, clusterService, transportService);
+        super(settings, name, clusterName, threadPool, clusterService, transportService, actionFilters);
         this.importParser = importParser;
         this.scriptProvider = scriptProvider;
         this.importer = importer;

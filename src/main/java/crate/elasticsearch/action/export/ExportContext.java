@@ -1,6 +1,7 @@
 package crate.elasticsearch.action.export;
 
 import crate.elasticsearch.export.Output;
+import org.apache.lucene.util.Counter;
 import crate.elasticsearch.export.OutputCommand;
 import crate.elasticsearch.export.OutputFile;
 import crate.elasticsearch.export.OutputJson;
@@ -39,14 +40,15 @@ public class ExportContext extends DefaultSearchContext {
     private String nodePath;
     private boolean mappings = false;
     private boolean settings = false;
-
+    
     public ExportContext(long id, ShardSearchRequest request, SearchShardTarget shardTarget,
                          Engine.Searcher engineSearcher, IndexService indexService, IndexShard indexShard,
                          ScriptService scriptService,
                          CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
-                         String nodePath) {
+                         String nodePath, 
+                         Counter timeEstimateCounter) {
         super(id, request, shardTarget, engineSearcher, indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler, null);
+                cacheRecycler, pageRecycler, null, timeEstimateCounter);
         this.nodePath = nodePath;
     }
 

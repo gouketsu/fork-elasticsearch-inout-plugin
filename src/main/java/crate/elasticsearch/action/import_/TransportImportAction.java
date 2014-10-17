@@ -4,6 +4,7 @@ import crate.elasticsearch.action.import_.parser.ImportParser;
 import crate.elasticsearch.import_.Importer;
 import crate.elasticsearch.script.ScriptProvider;
 
+import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.cluster.ClusterName;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.common.inject.Inject;
@@ -21,8 +22,10 @@ public class TransportImportAction extends AbstractTransportImportAction {
     @Inject
     public TransportImportAction(Settings settings, ClusterName clusterName,
                                          ThreadPool threadPool, ClusterService clusterService,
-                                         TransportService transportService, ScriptService scriptService, ScriptProvider scriptProvider, ImportParser importParser, Importer importer, NodeEnvironment nodeEnv) {
-        super(settings, "el-crate-import", clusterName, threadPool, clusterService, transportService, scriptService, scriptProvider, importParser, importer, nodeEnv);
+                                         TransportService transportService,
+                                         ActionFilters actionFilters,
+                                         ScriptService scriptService, ScriptProvider scriptProvider, ImportParser importParser, Importer importer, NodeEnvironment nodeEnv) {
+        super(settings, "el-crate-import", clusterName, threadPool, clusterService, transportService, actionFilters, scriptService, scriptProvider, importParser, importer, nodeEnv);
     }
 
     

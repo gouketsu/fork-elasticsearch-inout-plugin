@@ -3,6 +3,8 @@ package crate.elasticsearch.action.dump;
 import crate.elasticsearch.action.dump.parser.DumpParser;
 import crate.elasticsearch.action.export.AbstractTransportExportAction;
 import crate.elasticsearch.export.Exporter;
+
+import org.elasticsearch.action.support.ActionFilters;
 import org.elasticsearch.cache.recycler.CacheRecycler;
 import org.elasticsearch.cache.recycler.PageCacheRecycler;
 import org.elasticsearch.cluster.ClusterService;
@@ -22,11 +24,11 @@ public class TransportDumpAction extends AbstractTransportExportAction {
 
     @Inject
     public TransportDumpAction(Settings settings, ThreadPool threadPool, ClusterService clusterService,
-                               TransportService transportService, IndicesService indicesService,
+                               TransportService transportService, ActionFilters actionFilters, IndicesService indicesService,
                                ScriptService scriptService,
                                CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                                DumpParser dumpParser, Exporter exporter, NodeEnvironment nodeEnv) {
-        super(settings, "el-crate-dump", threadPool, clusterService, transportService, indicesService, scriptService,
+        super(settings, "el-crate-dump", threadPool, clusterService, transportService, actionFilters, indicesService, scriptService,
                 cacheRecycler, pageRecycler,
                 dumpParser, exporter, nodeEnv);
     }

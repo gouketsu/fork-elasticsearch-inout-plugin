@@ -6,6 +6,7 @@ import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
+import org.elasticsearch.index.shard.ShardId;
 
 import java.io.IOException;
 
@@ -26,8 +27,8 @@ class ShardExportRequest extends BroadcastShardOperationRequest {
 
     }
 
-    public ShardExportRequest(String index, int shardId, @Nullable String[] filteringAliases, ExportRequest request) {
-        super(index, shardId, request);
+    public ShardExportRequest(String index, ShardId shardId, @Nullable String[] filteringAliases, ExportRequest request) {
+        super(shardId, request);
         this.source = request.source();
         this.types = request.types();
         this.filteringAliases = filteringAliases;

@@ -1,6 +1,7 @@
 package crate.elasticsearch.action.searchinto;
 
 import crate.elasticsearch.searchinto.WriterResult;
+
 import org.elasticsearch.action.support.broadcast
         .BroadcastShardOperationResponse;
 import org.elasticsearch.common.io.stream.StreamInput;
@@ -8,6 +9,7 @@ import org.elasticsearch.common.io.stream.StreamOutput;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.shard.ShardId;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,9 +35,9 @@ class ShardSearchIntoResponse extends BroadcastShardOperationResponse
     }
 
 
-    public ShardSearchIntoResponse(Text node, String index, int shardId,
+    public ShardSearchIntoResponse(Text node, String index, ShardId shardId,
             WriterResult result) {
-        super(index, shardId);
+        super(shardId);
         this.node = node;
         this.result = result;
     }
@@ -43,7 +45,7 @@ class ShardSearchIntoResponse extends BroadcastShardOperationResponse
     /**
      * Constructor for dry runs. Does not contain any execution infos
      */
-    public ShardSearchIntoResponse(Text node, String index, int shardId) {
+    public ShardSearchIntoResponse(Text node, String index, ShardId shardId) {
         this.node = node;
         this.dryRun = true;
     }

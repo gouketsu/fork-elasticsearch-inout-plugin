@@ -1,5 +1,6 @@
 package crate.elasticsearch.action.searchinto;
 
+import org.apache.lucene.util.Counter;
 import org.elasticsearch.cache.recycler.CacheRecycler;
 import org.elasticsearch.cache.recycler.PageCacheRecycler;
 import org.elasticsearch.common.collect.ImmutableList;
@@ -48,10 +49,10 @@ public class SearchIntoContext extends DefaultSearchContext implements IScriptCo
             SearchShardTarget shardTarget, Engine.Searcher engineSearcher,
             IndexService indexService, IndexShard indexShard,
             ScriptService scriptService,
-            CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler) {
+            CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler, Counter timeEstimateCounter) {
         super(id, request, shardTarget, engineSearcher, indexService,
                 indexShard, scriptService,
-                cacheRecycler, pageRecycler, null);
+                cacheRecycler, pageRecycler, null, timeEstimateCounter);
         this.executionContext = new HashMap<String, Object>();
     }
 
