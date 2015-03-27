@@ -20,6 +20,7 @@ import org.elasticsearch.cluster.routing.ShardRouting;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.index.service.IndexService;
 import org.elasticsearch.index.shard.service.IndexShard;
@@ -59,6 +60,8 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
 
     private final CacheRecycler cacheRecycler;
     private final PageCacheRecycler pageRecycler;
+    
+    private final BigArrays array;
 
     private String nodePath;
 
@@ -76,6 +79,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
         this.pageRecycler = pageRecycler;
         this.exportParser = exportParser;
         this.exporter = exporter;
+        this.array = BigArrays.NON_RECYCLING_INSTANCE;
         if(nodeEnv.hasNodeFile()){
             File[] paths = nodeEnv.nodeDataLocations();
             if (paths.length > 0) {
@@ -165,7 +169,7 @@ public abstract class AbstractTransportExportAction extends TransportBroadcastOp
         ExportContext context = new ExportContext(
                 0, new ShardSearchLocalRequest(request.types(), System.currentTimeMillis(), request.filteringAliases()),
                 shardTarget, indexShard.acquireSearcher("inout-plugin"), indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler, nodePath, threadPool.estimatedTimeInMillisCounter());
+                cacheRecycler, pageRecycler, nodePath, threadPool.estimatedTimeInMillisCounter(), array);
 
         ExportContext.setCurrent(context);
 

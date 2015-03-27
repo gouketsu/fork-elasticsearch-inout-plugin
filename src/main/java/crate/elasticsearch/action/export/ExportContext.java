@@ -1,7 +1,9 @@
 package crate.elasticsearch.action.export;
 
 import crate.elasticsearch.export.Output;
+
 import org.apache.lucene.util.Counter;
+
 import crate.elasticsearch.export.OutputCommand;
 import crate.elasticsearch.export.OutputFile;
 import crate.elasticsearch.export.OutputJson;
@@ -9,6 +11,8 @@ import crate.elasticsearch.export.OutputJson;
 import org.elasticsearch.cache.recycler.CacheRecycler;
 import org.elasticsearch.cache.recycler.PageCacheRecycler;
 import org.elasticsearch.cluster.ClusterName;
+import org.elasticsearch.common.util.BigArray;
+import org.elasticsearch.common.util.BigArrays;
 import org.elasticsearch.index.engine.Engine;
 import org.elasticsearch.index.service.IndexService;
 import org.elasticsearch.index.shard.service.IndexShard;
@@ -46,9 +50,9 @@ public class ExportContext extends DefaultSearchContext {
                          ScriptService scriptService,
                          CacheRecycler cacheRecycler, PageCacheRecycler pageRecycler,
                          String nodePath, 
-                         Counter timeEstimateCounter) {
+                         Counter timeEstimateCounter, BigArrays array) {
         super(id, request, shardTarget, engineSearcher, indexService, indexShard, scriptService,
-                cacheRecycler, pageRecycler, null, timeEstimateCounter);
+                cacheRecycler, pageRecycler, array, timeEstimateCounter);
         this.nodePath = nodePath;
     }
 
