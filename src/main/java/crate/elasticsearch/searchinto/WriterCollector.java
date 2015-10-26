@@ -90,8 +90,7 @@ public abstract class WriterCollector extends Collector {
         for (FetchSubPhase fetchSubPhase : fetchSubPhases) {
             if (fetchSubPhase.hitExecutionNeeded(context)) {
                 hitContext.reset(searchHit, arc, doc,
-                        context.searcher().getIndexReader(), doc,
-                        fieldsVisitor);
+                        context.searcher().getIndexReader());
                 fetchSubPhase.hitExecute(context, hitContext);
             }
         }

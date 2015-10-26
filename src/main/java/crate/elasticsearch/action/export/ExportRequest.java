@@ -44,14 +44,6 @@ public class ExportRequest extends BroadcastOperationRequest<ExportRequest> {
         return validationException;
     }
 
-    @Override
-    protected void beforeStart() {
-        if (querySourceUnsafe) {
-            source = source.copyBytesArray();
-            querySourceUnsafe = false;
-        }
-    }
-
     /**
      * The query source to execute.
      */
@@ -59,16 +51,16 @@ public class ExportRequest extends BroadcastOperationRequest<ExportRequest> {
         return source;
     }
 
-    public ExportRequest source(String source) {
-        return this.source(new BytesArray(source), false);
-    }
-
-
-    public ExportRequest source(BytesReference source, boolean unsafe) {
+    public ExportRequest source(BytesReference source) {
         this.source = source;
-        this.querySourceUnsafe = unsafe;
         return this;
     }
+
+    public ExportRequest source(String source) {
+        this.source = new BytesArray(source);
+        return this;
+    }
+
 
     /**
      * The types of documents the query will run against. Defaults to all types.

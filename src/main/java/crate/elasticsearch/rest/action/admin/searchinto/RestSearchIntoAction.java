@@ -73,8 +73,7 @@ public class RestSearchIntoAction extends BaseRestHandler {
         searchIntoRequest.listenerThreaded(false);
         try {
             if (request.hasContent()) {
-                searchIntoRequest.source(request.content(),
-                        request.contentUnsafe());
+                searchIntoRequest.source(request.content());
             } else {
                 String source = request.param("source");
                 if (source != null) {
@@ -82,7 +81,7 @@ public class RestSearchIntoAction extends BaseRestHandler {
                 } else {
                     BytesReference querySource = RestActions.parseQuerySource(request).buildAsBytes(XContentType.JSON);
                     if (querySource != null) {
-                        searchIntoRequest.source(querySource, false);
+                        searchIntoRequest.source(querySource);
                     }
                 }
             }

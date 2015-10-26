@@ -8,6 +8,8 @@ import org.elasticsearch.script.SearchScript;
 import org.elasticsearch.search.SearchParseElement;
 import org.elasticsearch.search.fetch.script.ScriptFieldsContext;
 import org.elasticsearch.search.internal.SearchContext;
+import org.elasticsearch.script.ScriptContext;
+import org.elasticsearch.script.ScriptService.ScriptType;
 
 import crate.elasticsearch.action.searchinto.SearchIntoContext;
 
@@ -66,6 +68,7 @@ public class FieldsParseElement implements SearchParseElement {
                         Map<String, Object> params = null;
                         boolean ignoreException = false;
                         String currentFieldName = null;
+                        ScriptType scriptType = null;
                         while ((token = parser.nextToken()) !=
                                 XContentParser.Token.END_OBJECT) {
                             if (token == XContentParser.Token.FIELD_NAME) {
@@ -88,8 +91,9 @@ public class FieldsParseElement implements SearchParseElement {
                             }
                         }
                         SearchScript searchScript = context.scriptService()
-                                .search( context.scriptService().compile(scriptLang, script),
-                                context.lookup(), params);
+                                .search( context.lookup(), scriptLang, script, 
+                                  scriptType, ScriptContext.Standard.SEARCH,
+                                 params);
                         
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(scriptName,
@@ -107,13 +111,14 @@ public class FieldsParseElement implements SearchParseElement {
               
                 if (!source.startsWith(
                         SCRIPT_FIELD_PREFIX) && sourceValue == null) {
+                  ScriptType scriptType = null;
                     if (source.contains("_source.") || source.contains(
                             "doc[")) {
                         // script field to load from source
                         SearchScript searchScript = context.scriptService()
-                                .search(
-                                		context.scriptService().compile("mvel", source), 
-                                context.lookup(), null);
+                                .search(context.lookup(),
+                                		"mvel", source,  scriptType, ScriptContext.Standard.SEARCH, null
+                                );
                         
                         context.scriptFields().add(
                                 new ScriptFieldsContext.ScriptField(source,
@@ -133,10 +138,12 @@ public class FieldsParseElement implements SearchParseElement {
         } else if (token == XContentParser.Token.VALUE_STRING) {
             String name = parser.text();
             if (name.contains("_source.") || name.contains("doc[")) {
+              ScriptType scriptType = null;
                 // script field to load from source
                 SearchScript searchScript = context.scriptService().search(
-                		context.scriptService().compile("mvel", name), 
-                        context.lookup(), null);
+                  context.lookup(),
+                		"mvel", name,  scriptType, ScriptContext.Standard.SEARCH,
+                        null);
                 context.scriptFields().add(new ScriptFieldsContext.ScriptField(
                         name, searchScript, true));
             } else {

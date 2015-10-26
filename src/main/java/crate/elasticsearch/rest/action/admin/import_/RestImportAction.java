@@ -46,7 +46,7 @@ public class RestImportAction extends BaseRestHandler {
         importRequest.listenerThreaded(false);
         try {
             if (request.hasContent()) {
-                importRequest.source(request.content(), request.contentUnsafe());
+                importRequest.source(request.content());
             } else {
                 String source = request.param("source");
                 if (source != null) {
@@ -54,7 +54,7 @@ public class RestImportAction extends BaseRestHandler {
                 } else {
                     BytesReference querySource = RestActions.parseQuerySource(request).buildAsBytes(XContentType.JSON);
                     if (querySource != null) {
-                        importRequest.source(querySource, false);
+                        importRequest.source(querySource);
                     }
                 }
             }

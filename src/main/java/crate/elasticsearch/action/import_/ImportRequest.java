@@ -32,11 +32,12 @@ public class ImportRequest extends NodesOperationRequest<ImportRequest> {
     }
 
     public ImportRequest source(String source) {
-        return this.source(new BytesArray(source), false);
+        this.source = new BytesArray(source);
+        return this;
     }
 
-    public ImportRequest source(BytesReference source, boolean unsafe) {
-        this.source = source;
+    public ImportRequest source(BytesReference source) {
+         this.source = source;
         return this;
     }
 

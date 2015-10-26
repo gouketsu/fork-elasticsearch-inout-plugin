@@ -70,7 +70,7 @@ public class RestExportAction extends BaseRestHandler {
         exportRequest.listenerThreaded(false);
         try {
             if (request.hasContent()) {
-                exportRequest.source(request.content(), request.contentUnsafe());
+                exportRequest.source(request.content());
             } else {
                 String source = request.param("source");
                 if (source != null) {
@@ -78,7 +78,7 @@ public class RestExportAction extends BaseRestHandler {
                 } else {
                     BytesReference querySource = RestActions.parseQuerySource(request).buildAsBytes(XContentType.JSON);
                     if (querySource != null) {
-                        exportRequest.source(querySource, false);
+                        exportRequest.source(querySource);
                     }
                 }
             }

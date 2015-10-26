@@ -47,13 +47,7 @@ public class SearchIntoRequest extends
         return validationException;
     }
 
-    @Override
-    protected void beforeStart() {
-        if (querySourceUnsafe) {
-            source = source.copyBytesArray();
-            querySourceUnsafe = false;
-        }
-    }
+    
 
     /**
      * The query source to execute.
@@ -62,15 +56,14 @@ public class SearchIntoRequest extends
         return source;
     }
 
-    public SearchIntoRequest source(String source) {
-        return this.source(new BytesArray(source), false);
+    public SearchIntoRequest source(BytesReference source) {
+      this.source = source;
+      return this;
     }
-
-
-    public SearchIntoRequest source(BytesReference source, boolean unsafe) {
-        this.source = source;
-        this.querySourceUnsafe = unsafe;
-        return this;
+    
+    public SearchIntoRequest source(String source) {
+      this.source = new BytesArray(source);
+      return this;
     }
 
     /**

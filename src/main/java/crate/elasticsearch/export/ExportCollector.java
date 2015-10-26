@@ -168,7 +168,7 @@ public class ExportCollector extends Collector {
         for (FetchSubPhase fetchSubPhase : fetchSubPhases) {
             FetchSubPhase.HitContext hitContext = new FetchSubPhase.HitContext();
             if (fetchSubPhase.hitExecutionNeeded(context)) {
-                hitContext.reset(searchHit, arc, doc, context.searcher().getIndexReader(), doc, fieldsVisitor);
+                hitContext.reset(searchHit, arc, doc, context.searcher().getIndexReader());
                 fetchSubPhase.hitExecute(context, hitContext);
             }
         }
